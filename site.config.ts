@@ -1,0 +1,40 @@
+export const siteConfig = {
+  // Basic Site Information
+  title: "Vyomtics",
+  name: "Vyomtics",
+  description:
+    "Vyomtics is a technology-driven organization dedicated to advancing Robotics, IoT, AI, and Drone education across India. We provide high-quality components, innovative solutions, and complete lab setup services for schools, colleges, universities, industries, and startups.",
+  domain: "https://vyomtics.com",
+  // Logo
+  logo: {
+    path: "/logo-text.png",
+    alt: "Vyomtics Logo",
+  },
+
+  // Contact Information
+  contact: {
+    email: "sales@vyomtics.com",
+    phone: "+91 9758367474",
+    alternatePhone: "+91 9758367373",
+    whatsapp: "919758367474", // Format: country code + number (no spaces or special characters)
+    address: "Vyomtics ( Powered by N.L Enterprises), Dayalbagh, Agra 282005",
+    secondAddress: "NX-One Greater Noida 201318",
+  },
+
+  // Social Media Links
+  social: {
+    facebook: "",
+    instagram: "https://www.instagram.com/vyomtics",
+    twitter: "",
+    youtube: "https://www.youtube.com/@VyomticsPoweredbyN.LEnterprise",
+    linkedin: "",
+  },
+
+  // Admin Panel
+  admin: {
+    title: "Vyomtics",
+    subtitle: "Admin Panel",
+  },
+} as const;
+
+export type SiteConfig = typeof siteConfig;
