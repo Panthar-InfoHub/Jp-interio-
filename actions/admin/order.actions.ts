@@ -69,6 +69,13 @@ export async function getOrders(filters?: {
               select: {
                 id: true,
                 title: true,
+                slug: true,
+              },
+            },
+            variant: {
+              select: {
+                id: true,
+                name: true,
                 images: true,
               },
             },
@@ -118,8 +125,14 @@ export async function getOrder(id: string) {
               select: {
                 id: true,
                 title: true,
-                images: true,
                 slug: true,
+              },
+            },
+            variant: {
+              select: {
+                id: true,
+                name: true,
+                images: true,
               },
             },
           },

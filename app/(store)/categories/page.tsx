@@ -26,12 +26,15 @@ export default async function CategoriesPage() {
         where: {
           isActive: true,
         },
-        orderBy: {
-          sellingPrice: "asc",
-        },
+        orderBy: { createdAt: "desc" },
         take: 1,
         select: {
-          sellingPrice: true,
+          variants: {
+            where: { isActive: true },
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+            take: 1,
+            select: { sellingPrice: true },
+          },
         },
       },
       _count: {
@@ -53,7 +56,7 @@ export default async function CategoriesPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {categories.map((category) => {
-            const minPrice = category.products[0]?.sellingPrice;
+            const minPrice = category.products[0]?.variants?.[0]?.sellingPrice;
             const productCount = category._count.products;
 
             return (

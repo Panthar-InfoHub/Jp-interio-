@@ -42,6 +42,23 @@ export const productFaqSchema = z.object({
 export type ProductSection = z.infer<typeof productSectionSchema>;
 export type ProductFaq = z.infer<typeof productFaqSchema>;
 
+export const productVariantSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Variant name is required"),
+  sku: z.string().optional().nullable(),
+  images: z.array(z.string()).default([]),
+  mrp: z.number().positive("MRP must be positive"),
+  sellingPrice: z.number().positive("Selling price must be positive"),
+  stock: z.number().int().min(0, "Stock cannot be negative"),
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().int().default(0),
+}).refine((data) => data.sellingPrice <= data.mrp, {
+  message: "Selling price cannot be greater than MRP",
+  path: ["sellingPrice"],
+});
+
+export type ProductVariantFormData = z.infer<typeof productVariantSchema>;
+
 export type ProductFormData = z.infer<typeof productSchema>;
 
 export const productSchema = z
@@ -50,12 +67,8 @@ export const productSchema = z
     slug: z.string().min(1, "Slug is required"),
     shortDescription: z.string().optional(),
     description: z.string().min(1, "Description is required"),
-    images: z.array(z.string()).default([]),
     video: z.string().optional(),
     categoryId: z.string().optional().nullable(),
-    mrp: z.number().positive("MRP must be positive"),
-    sellingPrice: z.number().positive("Selling price must be positive"),
-    stock: z.number().int().min(0, "Stock cannot be negative"),
     isActive: z.boolean().default(true),
     isFeatured: z.boolean().default(false),
     isBestSeller: z.boolean().default(false),
@@ -64,10 +77,7 @@ export const productSchema = z
     sections: z.array(productSectionSchema).default([]),
     faqs: z.array(productFaqSchema).default([]),
     tags: z.array(z.string()).default([]),
-  })
-  .refine((data) => data.sellingPrice <= data.mrp, {
-    message: "Selling price cannot be greater than MRP",
-    path: ["sellingPrice"],
+    variants: z.array(productVariantSchema).min(1, "At least one variant is required"),
   });
 
 export type CategoryFormData = z.infer<typeof categorySchema>;
@@ -111,6 +121,7 @@ export const addressSchema = z.object({
 
 export const orderItemSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
+  variantId: z.string().min(1, "Variant ID is required"),
   name: z.string().min(1, "Product name is required"),
   image: z.string().optional(),
   price: z.number().positive("Price must be positive"),

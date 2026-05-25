@@ -61,40 +61,40 @@ export function verifyWebhookSignature(
  */
 export async function deductStockForOrder(
   orderItems: Array<{
-    productId: string;
-    variantDetails?: { price: number };
+    variantId: string | null;
     quantity: number;
   }>,
   tx: any // Prisma transaction client
 ) {
-  // Fetch all products involved in the order at once
-  const productIds = orderItems.map((i) => i.productId);
-  const products = await tx.product.findMany({
-    where: { id: { in: productIds } },
-    select: { id: true, title: true, stock: true },
+  const validItems = orderItems.filter((i) => i.variantId);
+  const variantIds = validItems.map((i) => i.variantId as string);
+  const variants = await tx.productVariant.findMany({
+    where: { id: { in: variantIds } },
+    select: { id: true, name: true, stock: true },
   });
 
   // 1. Validate ALL items first in memory
-  const updatePromises = orderItems.map((item) => {
-    const product = products.find((p: any) => p.id === item.productId);
-    if (!product) throw new Error(`Product not found: ${item.productId}`);
-    if (product.stock < item.quantity) {
-      throw new Error(`Insufficient stock for ${product.title}. Available: ${product.stock}`);
+  const updatePromises = validItems.map((item) => {
+    const variant = variants.find((v: any) => v.id === item.variantId);
+    if (!variant) throw new Error(`Variant not found: ${item.variantId}`);
+    if (variant.stock < item.quantity) {
+      throw new Error(`Insufficient stock for ${variant.name}. Available: ${variant.stock}`);
     }
 
-    // 2. Prepare update promise
-    return tx.product.update({
-      where: { id: item.productId },
-      data: {
-        stock: {
-          decrement: item.quantity,
-        },
-      },
+    // 2. Prepare guarded atomic update promise
+    return tx.productVariant.updateMany({
+      where: { id: item.variantId as string, stock: { gte: item.quantity } },
+      data: { stock: { decrement: item.quantity } },
     });
   });
 
   // 3. Execute all updates in parallel within the transaction
-  await Promise.all(updatePromises);
+  const results = await Promise.all(updatePromises);
+  for (const result of results) {
+    if (!result || result.count !== 1) {
+      throw new Error("Failed to deduct stock due to concurrent stock update");
+    }
+  }
 }
 
 /**

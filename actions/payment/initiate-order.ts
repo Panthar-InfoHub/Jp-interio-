@@ -6,8 +6,6 @@ import { headers } from "next/headers";
 import { prisma } from "@/prisma/db";
 import Razorpay from "razorpay";
 import { OrderDetails, orderDetailsSchema } from "@/lib/zod-schema";
-import { calculateShippingCharge } from "@/actions/admin/site-config.actions";
-import { generateOrderNumber } from "@/utils/order-helpers";
 
 export async function initiateOrder(orderDetails: OrderDetails) {
   // Start session fetch immediately
@@ -15,6 +13,7 @@ export async function initiateOrder(orderDetails: OrderDetails) {
 
   const validated = orderDetailsSchema.parse(orderDetails);
   const productIds = [...new Set(validated.items.map((i) => i.productId))];
+  const variantIds = [...new Set(validated.items.map((i) => i.variantId))];
 
   // Parallelize ALL database lookups that don't depend on each other
   // We fetch coupon and siteConfig early even though they might be used later
@@ -22,11 +21,25 @@ export async function initiateOrder(orderDetails: OrderDetails) {
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
   const endOfDay = new Date(new Date(today).setHours(23, 59, 59, 999));
 
-  const [session, products, todayOrderCount, coupon, siteConfig] = await Promise.all([
+  const [session, products, variants, todayOrderCount, coupon, siteConfig] = await Promise.all([
     sessionPromise,
     prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, title: true, sellingPrice: true, stock: true },
+      select: { id: true, title: true },
+    }),
+    prisma.productVariant.findMany({
+      where: { id: { in: variantIds } },
+      select: {
+        id: true,
+        productId: true,
+        name: true,
+        sku: true,
+        images: true,
+        mrp: true,
+        sellingPrice: true,
+        stock: true,
+        isActive: true,
+      },
     }),
     prisma.order.count({
       where: { createdAt: { gte: startOfDay, lte: endOfDay } },
@@ -51,9 +64,15 @@ export async function initiateOrder(orderDetails: OrderDetails) {
   let subtotal = 0;
   for (const item of validated.items) {
     const product = products.find((p) => p.id === item.productId);
+    const variant = variants.find((v) => v.id === item.variantId);
     if (!product) throw new Error(`Product not found: ${item.productId}`);
-    if (product.stock < item.quantity) throw new Error(`Insufficient stock for ${product.title}`);
-    subtotal += product.sellingPrice * item.quantity;
+    if (!variant) throw new Error(`Variant not found: ${item.variantId}`);
+    if (variant.productId !== item.productId) {
+      throw new Error(`Variant ${item.variantId} does not belong to product ${item.productId}`);
+    }
+    if (!variant.isActive) throw new Error(`Variant inactive for ${product.title}`);
+    if (variant.stock < item.quantity) throw new Error(`Insufficient stock for ${product.title}`);
+    subtotal += variant.sellingPrice * item.quantity;
   }
 
   // 3. Apply coupon discount (In-memory calculation)
@@ -115,13 +134,24 @@ export async function initiateOrder(orderDetails: OrderDetails) {
       billingAddress: (validated.billingAddress || validated.shippingAddress) as any,
       razorpayOrderId: razorpayOrder.id,
       items: {
-        create: validated.items.map((item) => ({
-          productId: item.productId,
-          name: item.name,
-          image: item.image,
-          variantDetails: { price: item.price } as any,
-          quantity: item.quantity,
-        })),
+        create: validated.items.map((item) => {
+          const variant = variants.find((v) => v.id === item.variantId)!;
+          return {
+            productId: item.productId,
+            variantId: item.variantId,
+            name: item.name,
+            image: item.image,
+            variantDetails: {
+              variantName: variant.name,
+              sku: variant.sku,
+              mrp: variant.mrp,
+              sellingPrice: variant.sellingPrice,
+              images: variant.images,
+              price: variant.sellingPrice,
+            } as any,
+            quantity: item.quantity,
+          };
+        }),
       },
     },
     select: { id: true, orderNumber: true }, // Only select what's needed for response

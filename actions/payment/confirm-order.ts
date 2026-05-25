@@ -99,8 +99,7 @@ export async function confirmOrder({
       // Deduct stock for all items
       await deductStockForOrder(
         order.items.map((item) => ({
-          productId: item.productId,
-          variantDetails: item.variantDetails as { price: number },
+          variantId: item.variantId,
           quantity: item.quantity,
         })),
         tx

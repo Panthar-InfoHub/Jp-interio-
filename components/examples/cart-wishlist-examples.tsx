@@ -42,7 +42,7 @@ export function ProductCardExample({ product }: ProductCardExampleProps) {
 
   // Handle add to cart
   const handleAddToCart = async () => {
-    await addItem(product.id, selectedWeight, product.name, 1);
+    await addItem(product.id, product.name, 1, selectedWeight);
     // Toast is handled inside the hook
   };
 

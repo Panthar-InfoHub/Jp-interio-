@@ -26,32 +26,67 @@ export async function FeaturedProducts({ title, filter }: FeaturedProductsProps)
       title: true,
       slug: true,
       shortDescription: true,
-      images: true,
-      mrp: true,
-      sellingPrice: true,
-      stock: true,
       isFeatured: true,
       isBestSeller: true,
       isNewArrival: true,
       isOnSale: true,
+      variants: {
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          images: true,
+          mrp: true,
+          sellingPrice: true,
+          stock: true,
+          isActive: true,
+          sortOrder: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
   if (products.length === 0) return null;
 
+  const isBestseller = filter === "bestseller";
+
   return (
-    <section className="py-12 md:py-16 bg-gray-50">
+    <section
+      className={`py-12 md:py-20 ${
+        isBestseller
+          ? "bg-[url('/image/bestseller_bg.jpg')] bg-cover bg-center bg-no-repeat"
+          : "bg-gray-50"
+      }`}
+    >
       <div className="container mx-auto px-6">
-        <div className="mb-12">
-          <p className="text-sm font-semibold text-cyan-600 uppercase tracking-wider mb-3">
-            {filter === "bestseller"
-              ? "Best Sellers"
-              : filter === "new"
-              ? "New Arrivals"
-              : "Featured"}
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{title}</h2>
-          <p className="text-base md:text-lg text-gray-600">Discover our most popular products</p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <div>
+            {!isBestseller && (
+              <p className="text-sm font-semibold text-cyan-600 uppercase tracking-wider mb-3">
+                {filter === "new" ? "New Arrivals" : "Featured"}
+              </p>
+            )}
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+              {isBestseller ? "Top Picks for Home Decor" : title}
+            </h2>
+            <p className="text-sm md:text-base text-gray-600 font-medium">
+              {isBestseller
+                ? "This week's handpicked items from our interior collection."
+                : "Discover our most popular products"}
+            </p>
+          </div>
+          {isBestseller && (
+            <a
+              href="/products"
+              className="text-[#c48b6c] hover:text-[#b07a5c] font-semibold text-sm flex items-center gap-1.5 transition-colors shrink-0 md:mb-1"
+            >
+              View All Products
+              <span className="text-base font-normal">→</span>
+            </a>
+          )}
         </div>
 
         <ProductCarousel products={products} />

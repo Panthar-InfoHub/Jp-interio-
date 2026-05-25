@@ -32,12 +32,10 @@ export default async function CheckoutPage() {
                 id: true,
                 title: true,
                 slug: true,
-                images: true,
-                sellingPrice: true,
-                stock: true,
                 isActive: true,
               },
             },
+            variant: true,
           },
         },
       },
@@ -47,18 +45,20 @@ export default async function CheckoutPage() {
   // Map cart items for client
   const initialCartItems =
     cart?.items
-      .filter((item) => item.product.isActive)
+      .filter((item) => item.product.isActive && item.variant.isActive)
       .map((item) => ({
         id: item.id,
         productId: item.product.id,
+        variantId: item.variant.id,
+        variantName: item.variant.name,
         name: item.product.title,
         slug: item.product.slug,
-        image: item.product.images[0] || "/images/placeholder.png",
-        price: item.product.sellingPrice,
+        image: item.variant.images[0] || "/images/placeholder.png",
+        price: item.variant.sellingPrice,
+        mrp: item.variant.mrp,
         quantity: item.quantity,
-        weight: item.weight,
-        inStock: item.product.stock > 0,
-        stockQuantity: item.product.stock,
+        inStock: item.variant.stock > 0,
+        stockQuantity: item.variant.stock,
       })) || [];
 
   return (

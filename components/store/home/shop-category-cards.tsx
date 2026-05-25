@@ -29,12 +29,15 @@ export async function ShopCategoryCards() {
         where: {
           isActive: true,
         },
-        orderBy: {
-          sellingPrice: "asc",
-        },
+        orderBy: { createdAt: "desc" },
         take: 1,
         select: {
-          sellingPrice: true,
+          variants: {
+            where: { isActive: true },
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+            take: 1,
+            select: { sellingPrice: true },
+          },
         },
       },
     },
@@ -62,12 +65,15 @@ export async function ShopCategoryCards() {
           where: {
             isActive: true,
           },
-          orderBy: {
-            sellingPrice: "asc",
-          },
+          orderBy: { createdAt: "desc" },
           take: 1,
           select: {
-            sellingPrice: true,
+            variants: {
+              where: { isActive: true },
+              orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+              take: 1,
+              select: { sellingPrice: true },
+            },
           },
         },
       },
@@ -86,16 +92,16 @@ export async function ShopCategoryCards() {
       <div className="container mx-auto px-6">
         <div className="mb-12">
           <p className="text-sm font-semibold text-cyan-600 uppercase tracking-wider mb-3">
-            Categories
+            Curated Collections
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-          <p className="text-base md:text-lg text-gray-600">Explore our wide range of categories</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Key Elements for a Mindful Living Space</h2>
+          {/* <p className="text-base md:text-lg text-gray-600">Explore our wide range of categories</p> */}
         </div>
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-4 gap-4 md:gap-6">
           {categories.slice(0, 5).map((category, index) => {
-            const minPrice = category.products[0]?.sellingPrice;
+            const minPrice = category.products[0]?.variants?.[0]?.sellingPrice;
             const hasImage = category.image && category.image.trim() !== "";
             const gradient = gradients[index % gradients.length];
 

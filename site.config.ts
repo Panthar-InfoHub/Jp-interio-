@@ -3,17 +3,17 @@ export const siteConfig = {
   title: "Vyomtics",
   name: "Vyomtics",
   description:
-    "Vyomtics is a technology-driven organization dedicated to advancing Robotics, IoT, AI, and Drone education across India. We provide high-quality components, innovative solutions, and complete lab setup services for schools, colleges, universities, industries, and startups.",
-  domain: "https://vyomtics.com",
+    "JP Interio is a technology-driven organization dedicated to advancing Robotics, IoT, AI, and Drone education across India. We provide high-quality components, innovative solutions, and complete lab setup services for schools, colleges, universities, industries, and startups.",
+  domain: "https://jpinterio.com",
   // Logo
   logo: {
-    path: "/logo-text.png",
-    alt: "Vyomtics Logo",
+    path: "/image/logo.png",
+    alt: "JP Interio Logo",
   },
 
   // Contact Information
   contact: {
-    email: "sales@vyomtics.com",
+    email: "[EMAIL_ADDRESS]",
     phone: "+91 9758367474",
     alternatePhone: "+91 9758367373",
     whatsapp: "919758367474", // Format: country code + number (no spaces or special characters)

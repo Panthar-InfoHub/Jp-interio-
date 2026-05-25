@@ -289,6 +289,7 @@ export function CheckoutForm({
 
       const orderItems = displayItems.map((item) => ({
         productId: item.productId,
+        variantId: item.variantId,
         name: item.name,
         image: item.image,
         price: item.price,

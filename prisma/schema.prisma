@@ -116,13 +116,10 @@ model Product {
   slug             String         @unique
   shortDescription String?
   description      String         @db.Text
-  images           String[]       @default([])
   video            String?
   categoryId       String?
   category         Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  mrp              Float
-  sellingPrice     Float
-  stock            Int            @default(0)
+  variants         ProductVariant[]
   isActive         Boolean        @default(true)
   isFeatured       Boolean        @default(false)
   isBestSeller     Boolean        @default(false)
@@ -146,6 +143,36 @@ model Product {
   @@index([isActive, isFeatured])
   @@index([isActive, categoryId])
   @@map("product")
+}
+
+model ProductVariant {
+  id String @id @default(cuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  name         String
+  sku          String?
+  images       String[]       @default([])
+
+  mrp          Float
+  sellingPrice Float
+  stock            Int            @default(0)
+
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([productId, name])
+  @@unique([sku])
+  @@index([productId])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("product_variant")
 }
 
 model Review {
@@ -231,13 +258,16 @@ model OrderItem {
   order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId      String
   product        Product  @relation(fields: [productId], references: [id])
+  variantId      String?
+  variant        ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
   name           String
-  variantDetails Json // {weight, price}
+  variantDetails Json // snapshot: { variantName, sku, mrp, sellingPrice, images }
   quantity       Int
   image          String?
   createdAt      DateTime @default(now())
 
   @@map("order_item")
+  @@index([variantId])
 }
 
 model Address {
@@ -280,14 +310,17 @@ model CartItem {
   cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  weight    String // variant identifier
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([cartId, productId, weight])
+
+  @@unique([cartId, variantId])
   @@index([cartId])
   @@index([productId])
+  @@index([variantId])
   @@map("cart_item")
 }
 

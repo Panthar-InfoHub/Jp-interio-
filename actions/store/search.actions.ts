@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/prisma/db";
+import { getPrimaryVariant, getVariantDisplayDetails } from "@/lib/variant-helpers";
 
 export interface SearchPreviewResult {
   categories: Array<{
@@ -103,9 +104,9 @@ export async function searchPreview(query: string): Promise<SearchPreviewResult>
           id: true,
           title: true,
           slug: true,
-          images: true,
-          sellingPrice: true,
-          mrp: true,
+          variants: {
+            orderBy: { sortOrder: 'asc' }
+          },
           category: {
             select: {
               name: true,
@@ -151,7 +152,19 @@ export async function searchPreview(query: string): Promise<SearchPreviewResult>
         slug: cat.slug,
         productCount: cat._count.products,
       })),
-      products,
+      products: products.map(p => {
+        const primaryVariant = getPrimaryVariant(p.variants as any);
+        const displayDetails = getVariantDisplayDetails(primaryVariant);
+        return {
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          images: Array.from(new Set(p.variants.flatMap((v: any) => v.images))),
+          sellingPrice: displayDetails.price,
+          mrp: displayDetails.mrp,
+          category: p.category
+        };
+      }),
       totalProducts,
       totalCategories,
     };

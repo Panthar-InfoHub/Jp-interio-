@@ -123,54 +123,107 @@ async function ProductsGrid({ params }: { params: SearchParams }) {
     ];
   }
 
-  if (minPrice || maxPrice) {
-    whereClause.sellingPrice = {};
-    if (minPrice) whereClause.sellingPrice.gte = parseFloat(minPrice);
-    if (maxPrice) whereClause.sellingPrice.lte = parseFloat(maxPrice);
-  }
-
-  if (inStock === "true") {
-    whereClause.stock = { gt: 0 };
-  }
-
-  // Build orderBy clause
-  let orderBy: any = { createdAt: "desc" };
-
-  if (sort === "price-asc") orderBy = { sellingPrice: "asc" };
-  if (sort === "price-desc") orderBy = { sellingPrice: "desc" };
-  if (sort === "name") orderBy = { title: "asc" };
-  if (sort === "popular") orderBy = { isBestSeller: "desc" };
-
-  // Pagination
-  const currentPage = parseInt(page);
-  const pageSize = 20;
-  const skip = (currentPage - 1) * pageSize;
-
-  const [products, totalCount] = await Promise.all([
-    prisma.product.findMany({
-      where: whereClause,
-      orderBy,
-      skip,
-      take: pageSize,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        shortDescription: true,
-        images: true,
-        mrp: true,
-        sellingPrice: true,
-        stock: true,
-        isFeatured: true,
-        isBestSeller: true,
-        isNewArrival: true,
-        isOnSale: true,
+  // 1. Fetch lightweight data for filtering and sorting
+  const allProductsForFilter = await prisma.product.findMany({
+    where: whereClause,
+    select: {
+      id: true,
+      createdAt: true,
+      title: true,
+      isBestSeller: true,
+      variants: {
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        take: 1,
+        select: {
+          sellingPrice: true,
+          stock: true,
+        },
       },
-    }),
-    prisma.product.count({ where: whereClause }),
-  ]);
+    },
+  });
 
+  const min = minPrice ? parseFloat(minPrice) : null;
+  const max = maxPrice ? parseFloat(maxPrice) : null;
+  let filteredProductsData = allProductsForFilter.filter((product) => {
+    const primary = product.variants[0];
+    if (!primary) return false;
+    if (inStock === "true" && primary.stock <= 0) return false;
+    if (min !== null && primary.sellingPrice < min) return false;
+    if (max !== null && primary.sellingPrice > max) return false;
+    return true;
+  });
+
+  if (sort === "price-asc") {
+    filteredProductsData.sort((a, b) => (a.variants[0]?.sellingPrice || 0) - (b.variants[0]?.sellingPrice || 0));
+  } else if (sort === "price-desc") {
+    filteredProductsData.sort((a, b) => (b.variants[0]?.sellingPrice || 0) - (a.variants[0]?.sellingPrice || 0));
+  } else if (sort === "name") {
+    filteredProductsData.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (sort === "popular") {
+    filteredProductsData.sort((a, b) => Number(b.isBestSeller) - Number(a.isBestSeller));
+  } else {
+    // Default: newest
+    filteredProductsData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  const currentPage = parseInt(page);
+  const pageSize = 9;
+  const totalCount = filteredProductsData.length;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const skip = (currentPage - 1) * pageSize;
+  const paginatedIds = filteredProductsData.slice(skip, skip + pageSize).map((p) => p.id);
+
+  // 2. Fetch full payload only for the paginated products
+  const paginatedProductsRaw = await prisma.product.findMany({
+    where: { id: { in: paginatedIds } },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      shortDescription: true,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      isOnSale: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+      variants: {
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          images: true,
+          mrp: true,
+          sellingPrice: true,
+          stock: true,
+          isActive: true,
+          sortOrder: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  // Map back to preserve sorted order
+  const productsMap = new Map(paginatedProductsRaw.map((p) => [p.id, p]));
+  const sortedPaginatedProducts = paginatedIds.map((id) => productsMap.get(id)!).filter(Boolean);
+
+  const paginatedProducts = sortedPaginatedProducts.map((product) => {
+    const avgRating =
+      product.reviews.length > 0
+        ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length
+        : 0;
+    return {
+      ...product,
+      avgRating,
+    };
+  });
 
   return (
     <>
@@ -185,10 +238,10 @@ async function ProductsGrid({ params }: { params: SearchParams }) {
         </div>
 
         {/* Products */}
-        {products.length > 0 ? (
+        {paginatedProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {products.map((product) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {paginatedProducts.map((product) => (
                 <ModernProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -283,14 +336,15 @@ export default async function ProductsPage({
 
           {/* Products Grid - Streams in */}
           <Suspense
+            key={JSON.stringify(params)}
             fallback={
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-4">
                   <Skeleton className="h-6 w-32" />
                   <Skeleton className="h-10 w-48" />
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {Array.from({ length: 20 }).map((_, i) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                  {Array.from({ length: 9 }).map((_, i) => (
                     <ProductCardSkeleton key={i} />
                   ))}
                 </div>

@@ -1,8 +1,8 @@
 import { generatePageMetadata } from "@/lib/metadata";
 import { prisma } from "@/prisma/db";
+import { getPrimaryVariant, getVariantDisplayDetails } from "@/lib/variant-helpers";
 import { notFound } from "next/navigation";
-import { ProductImageGallery } from "@/components/store/products/product-image-gallery";
-import { ProductInfo } from "@/components/store/products/product-info";
+import { ProductMainClient } from "@/components/store/products/product-main-client";
 import { ProductTabs } from "@/components/store/products/product-tabs";
 import { RelatedProducts } from "@/components/store/products/related-products";
 import { ProductReviews } from "@/components/store/products/product-reviews";
@@ -15,10 +15,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const product = await prisma.product.findUnique({
     where: { slug },
-    select: { title: true, shortDescription: true, images: true },
+    select: { title: true, shortDescription: true, variants: true },
   });
 
   if (!product) return {};
+
+  const primaryVariant = getPrimaryVariant(product.variants);
+  const displayDetails = getVariantDisplayDetails(primaryVariant);
 
   return generatePageMetadata({
     path: `/products/${slug}`,
@@ -34,6 +37,9 @@ async function ProductMainContent({ slug }: { slug: string }) {
   const product = await prisma.product.findUnique({
     where: { slug, isActive: true },
     include: {
+      variants: {
+        orderBy: { sortOrder: 'asc' }
+      },
       category: {
         select: {
           id: true,
@@ -92,26 +98,21 @@ async function ProductMainContent({ slug }: { slug: string }) {
       </nav>
 
       {/* Product Main Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <ProductImageGallery images={product.images} title={product.title} />
-        <ProductInfo
-          product={{
-            id: product.id,
-            title: product.title,
-            shortDescription: product.shortDescription,
-            mrp: product.mrp,
-            sellingPrice: product.sellingPrice,
-            stock: product.stock,
-            tags: product.tags,
-            isFeatured: product.isFeatured,
-            isBestSeller: product.isBestSeller,
-            isNewArrival: product.isNewArrival,
-            isOnSale: product.isOnSale,
-            avgRating,
-            reviewCount: product.reviews.length,
-          }}
-        />
-      </div>
+      <ProductMainClient
+        product={{
+          id: product.id,
+          title: product.title,
+          shortDescription: product.shortDescription,
+          variants: product.variants,
+          tags: product.tags,
+          isFeatured: product.isFeatured,
+          isBestSeller: product.isBestSeller,
+          isNewArrival: product.isNewArrival,
+          isOnSale: product.isOnSale,
+          avgRating,
+          reviewCount: product.reviews.length,
+        }}
+      />
 
       {/* Product Tabs */}
       <ProductTabs description={product.description} sections={sections} faqs={faqs} />

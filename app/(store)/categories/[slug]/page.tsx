@@ -54,35 +54,49 @@ async function CategoryContent({ slug, sort }: { slug: string; sort: string }) {
     notFound();
   }
 
-  // Build orderBy clause
-  let orderBy: any = { createdAt: "desc" };
-
-  if (sort === "price-asc") orderBy = { sellingPrice: "asc" };
-  if (sort === "price-desc") orderBy = { sellingPrice: "desc" };
-  if (sort === "name") orderBy = { title: "asc" };
-  if (sort === "popular") orderBy = { isBestSeller: "desc" };
-
-  const products = await prisma.product.findMany({
+  let products = await prisma.product.findMany({
     where: {
       categoryId: category.id,
       isActive: true,
     },
-    orderBy,
+    orderBy: { createdAt: "desc" },
     select: {
       id: true,
       title: true,
       slug: true,
       shortDescription: true,
-      images: true,
-      mrp: true,
-      sellingPrice: true,
-      stock: true,
       isFeatured: true,
       isBestSeller: true,
       isNewArrival: true,
       isOnSale: true,
+      variants: {
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          images: true,
+          mrp: true,
+          sellingPrice: true,
+          stock: true,
+          isActive: true,
+          sortOrder: true,
+          createdAt: true,
+        },
+      },
     },
   });
+
+  if (sort === "price-asc") {
+    products.sort((a, b) => (a.variants[0]?.sellingPrice || 0) - (b.variants[0]?.sellingPrice || 0));
+  } else if (sort === "price-desc") {
+    products.sort((a, b) => (b.variants[0]?.sellingPrice || 0) - (a.variants[0]?.sellingPrice || 0));
+  } else if (sort === "name") {
+    products.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (sort === "popular") {
+    products.sort((a, b) => Number(b.isBestSeller) - Number(a.isBestSeller));
+  }
 
   return (
     <>

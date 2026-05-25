@@ -110,7 +110,8 @@ export function OrdersList() {
 
                 <div className="space-y-3 mb-4">
                   {order.items.map((item: any) => {
-                    const itemImage = item.product?.images?.[0] || "/placeholder.svg";
+                    const itemImage =
+                      item.variantDetails?.images?.[0] || item.variant?.images?.[0] || "/placeholder.svg";
                     const itemName = item.name || item.product?.title || "Product";
                     const variantPrice = item.variantDetails?.price || 0;
 
@@ -173,7 +174,8 @@ export function OrdersList() {
                             <h4 className="font-semibold mb-3">Items</h4>
                             <div className="space-y-3">
                               {selectedOrder.items.map((item: any) => {
-                                const itemImage = item.product?.images?.[0] || "/placeholder.svg";
+                                const itemImage =
+                                  item.variantDetails?.images?.[0] || item.variant?.images?.[0] || "/placeholder.svg";
                                 const itemName = item.name || item.product?.title || "Product";
                                 const variantPrice = item.variantDetails?.price || 0;
 

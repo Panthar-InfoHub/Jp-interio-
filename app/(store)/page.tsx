@@ -1,5 +1,6 @@
 import { generatePageMetadata } from "@/lib/metadata";
 import { HeroCarousel } from "@/components/store/home/hero-carousel";
+import { FeaturedCategoriesNav } from "@/components/store/home/featured-categories-nav";
 import { ShopCategoryCards } from "@/components/store/home/shop-category-cards";
 import { FeaturedProducts } from "@/components/store/home/featured-products";
 import { TrustBadges } from "@/components/store/home/trust-badges";
@@ -14,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { siteConfig } from "@/site.config";
 import Image from "next/image";
+import { VisualizeSection } from "@/components/store/home/visualize-section";
 
 export const metadata = generatePageMetadata({
   path: "/",
@@ -34,6 +36,21 @@ export default async function HomePage() {
     <>
       <Suspense
         fallback={
+          <div className="w-full bg-white">
+            <div className="container mx-auto px-4 py-3 md:py-4 flex justify-center gap-6 md:gap-12">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-5 w-24 hidden sm:block" />
+              <Skeleton className="h-5 w-20 hidden md:block" />
+              <Skeleton className="h-5 w-24 hidden lg:block" />
+              <Skeleton className="h-5 w-28 hidden lg:block" />
+            </div>
+          </div>
+        }
+      >
+        <FeaturedCategoriesNav />
+      </Suspense>
+      <Suspense
+        fallback={
           <div className="relative w-full overflow-hidden bg-linear-to-b from-blue-50 via-white to-gray-50 border-b border-blue-100">
             <div className="relative h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center">
               <Skeleton className="h-full w-full" />
@@ -52,16 +69,18 @@ export default async function HomePage() {
         <FeaturedProducts title="SHOP OUR BESTSELLERS" filter="bestseller" />
       </Suspense>
 
+      <VisualizeSection />
+
       <Testimonials />
 
       <Suspense fallback={<ProductSectionSkeleton title="NEW LAUNCH" />}>
         <FeaturedProducts title="NEW LAUNCH" filter="new" />
       </Suspense>
 
-      <Achievements />
+      {/* <Achievements />
       <LabSetup />
       <NewsSection />
-      <TrustBadges />
+      <TrustBadges /> */}
 
       <Suspense fallback={<FAQSectionSkeleton />}>
         <FAQWrapper />

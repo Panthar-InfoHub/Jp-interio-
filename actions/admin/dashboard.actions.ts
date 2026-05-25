@@ -221,17 +221,27 @@ export async function getTopProducts(limit: number = 5) {
       where: { id: { in: productIds } },
       include: {
         category: true,
+        variants: {
+          where: { isActive: true },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+          select: {
+            images: true,
+            sellingPrice: true,
+          },
+        },
       },
     });
 
     const data = topProducts.map((item) => {
       const product = products.find((p) => p.id === item.productId);
+      const primaryVariant = product?.variants?.[0];
       return {
         id: item.productId,
         title: product?.title || "Unknown",
         sales: item._sum.quantity || 0,
         orders: item._count.productId,
-        image: product?.images[0] || "/placeholder.svg",
+        image: primaryVariant?.images?.[0] || "/placeholder.svg",
+        sellingPrice: primaryVariant?.sellingPrice || 0,
         category: product?.category?.name || "Unknown",
       };
     });

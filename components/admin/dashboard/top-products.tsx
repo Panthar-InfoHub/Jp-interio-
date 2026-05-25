@@ -22,7 +22,9 @@ export async function TopProducts() {
         ) : (
           <div className="space-y-4">
             {topProducts.map((product, index) => {
-              const price = product.sellingPrice || 0;
+              const primaryVariant = product.variants?.[0];
+              const price = primaryVariant?.sellingPrice || 0;
+              const image = primaryVariant?.images?.[0] || "/placeholder.svg";
 
               return (
                 <div key={product.id} className="flex items-center gap-4 group">
@@ -41,7 +43,7 @@ export async function TopProducts() {
                   </div>
                   <div className="relative w-12 h-12 bg-muted rounded-lg overflow-hidden shrink-0 group-hover:ring-2 ring-primary transition-all">
                     <Image
-                      src={product.images[0] || "/placeholder.svg"}
+                      src={image}
                       alt={product.title}
                       fill
                       sizes="48px"

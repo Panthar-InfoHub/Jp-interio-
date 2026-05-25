@@ -44,6 +44,7 @@ export async function getCart() {
         items: {
           include: {
             product: true,
+            variant: true,
           },
         },
       },
@@ -55,18 +56,20 @@ export async function getCart() {
 
     // Map cart items with full product details - filter inactive products
     const enrichedItems = cart.items
-      .filter((item) => item.product.isActive)
+      .filter((item) => item.product.isActive && item.variant?.isActive)
       .map((item) => ({
         id: item.id,
         productId: item.product.id,
+        variantId: item.variant.id,
         name: item.product.title,
+        variantName: item.variant.name,
         slug: item.product.slug,
-        image: item.product.images[0] || "/images/placeholder.png",
-        price: item.product.sellingPrice,
+        image: item.variant.images[0] || "/images/placeholder.png",
+        price: item.variant.sellingPrice,
+        mrp: item.variant.mrp,
         quantity: item.quantity,
-        weight: item.weight,
-        inStock: item.product.stock > 0,
-        stockQuantity: item.product.stock,
+        inStock: item.variant.stock > 0,
+        stockQuantity: item.variant.stock,
       }));
 
     return { success: true, data: { items: enrichedItems } };
@@ -76,11 +79,10 @@ export async function getCart() {
   }
 }
 
-// Add item to cart - OPTIMIZED with upsert
 export async function addToCart(
   productId: string,
   quantity: number = 1,
-  weight: string = "default"
+  variantId: string
 ) {
   try {
     const cartId = await getCartId();
@@ -93,10 +95,9 @@ export async function addToCart(
     // Use upsert for better performance - single query instead of find + create/update
     await prisma.cartItem.upsert({
       where: {
-        cartId_productId_weight: {
+        cartId_variantId: {
           cartId,
-          productId,
-          weight,
+          variantId,
         },
       },
       update: {
@@ -105,7 +106,7 @@ export async function addToCart(
       create: {
         cartId,
         productId,
-        weight,
+        variantId,
         quantity,
       },
     });

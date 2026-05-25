@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { createProduct, updateProduct } from "@/actions/admin/product.actions";
 import { getCategories } from "@/actions/admin/category.actions";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, X, Package } from "lucide-react";
 import Link from "next/link";
 import { productSchema, type ProductFormData, ProductSection, ProductFaq } from "@/lib/zod-schema";
 import { MediaSection } from "@/components/admin/shared/media-section";
@@ -73,12 +73,8 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         slug: product.slug || "",
         shortDescription: product.shortDescription || "",
         description: product.description || "",
-        images: product.images || [],
         video: product.video || "",
         categoryId: product.categoryId || null,
-        mrp: product.mrp || 0,
-        sellingPrice: product.sellingPrice || 0,
-        stock: product.stock || 0,
         isActive: product.isActive ?? true,
         isFeatured: product.isFeatured || false,
         isBestSeller: product.isBestSeller || false,
@@ -95,6 +91,18 @@ export function ProductForm({ product, mode }: ProductFormProps) {
             ? JSON.parse(product.faqs)
             : [],
         tags: product.tags || [],
+        variants: Array.isArray(product.variants) && product.variants.length > 0 
+          ? product.variants 
+          : [{
+              name: "Default",
+              sku: "",
+              images: [],
+              mrp: 0,
+              sellingPrice: 0,
+              stock: 0,
+              isActive: true,
+              sortOrder: 0
+            }],
       };
     }
 
@@ -103,12 +111,8 @@ export function ProductForm({ product, mode }: ProductFormProps) {
       slug: "",
       shortDescription: "",
       description: "",
-      images: [],
       video: "",
       categoryId: null,
-      mrp: 0,
-      sellingPrice: 0,
-      stock: 0,
       isActive: true,
       isFeatured: false,
       isBestSeller: false,
@@ -117,6 +121,16 @@ export function ProductForm({ product, mode }: ProductFormProps) {
       sections: [],
       faqs: [],
       tags: [],
+      variants: [{
+        name: "Default",
+        sku: "",
+        images: [],
+        mrp: 0,
+        sellingPrice: 0,
+        stock: 0,
+        isActive: true,
+        sortOrder: 0
+      }],
     };
   };
 
@@ -130,6 +144,15 @@ export function ProductForm({ product, mode }: ProductFormProps) {
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: getDefaultValues(),
+  });
+
+  const {
+    fields: variantFields,
+    append: appendVariant,
+    remove: removeVariant,
+  } = useFieldArray({
+    control,
+    name: "variants",
   });
 
   useEffect(() => {
@@ -330,82 +353,189 @@ export function ProductForm({ product, mode }: ProductFormProps) {
                 </CardContent>
               </Card>
 
-              {/* Product Media */}
+              {/* Product Variants */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Product Media</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5" />
+                    Product Variants
+                  </CardTitle>
                   <CardDescription>
-                    Upload product images and videos
+                    Each variant has its own price, stock, and images
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Controller
-                    control={control}
-                    name="images"
-                    render={({ field }) => (
-                      <MediaSection
-                        media={field.value || []}
-                        onChange={(newMedia) => field.onChange(newMedia)}
-                        maxFiles={10}
-                        maxSizeMB={5}
-                      />
-                    )}
-                  />
-                  {errors.images && (
-                    <p className="text-sm text-destructive mt-2">{errors.images.message}</p>
+                <CardContent className="space-y-6">
+                  {variantFields.map((field, index) => (
+                    <Card key={field.id} className="border-2 relative">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">Variant #{index + 1}</CardTitle>
+                          {variantFields.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeVariant(index)}
+                              disabled={isLoading}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`variants.${index}.name`}>Variant Name *</Label>
+                            <Input
+                              id={`variants.${index}.name`}
+                              {...register(`variants.${index}.name`)}
+                              placeholder="e.g., Default, Large, Red, 500g"
+                              disabled={isLoading}
+                            />
+                            {errors.variants?.[index]?.name && (
+                              <p className="text-sm text-destructive">
+                                {errors.variants[index]?.name?.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`variants.${index}.sku`}>SKU (Optional)</Label>
+                            <Input
+                              id={`variants.${index}.sku`}
+                              {...register(`variants.${index}.sku`)}
+                              placeholder="Stock Keeping Unit"
+                              disabled={isLoading}
+                            />
+                            {errors.variants?.[index]?.sku && (
+                              <p className="text-sm text-destructive">
+                                {errors.variants[index]?.sku?.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`variants.${index}.mrp`}>MRP *</Label>
+                            <Input
+                              id={`variants.${index}.mrp`}
+                              type="number"
+                              step="0.01"
+                              {...register(`variants.${index}.mrp`, { valueAsNumber: true })}
+                              placeholder="0.00"
+                              disabled={isLoading}
+                            />
+                            {errors.variants?.[index]?.mrp && (
+                              <p className="text-sm text-destructive">
+                                {errors.variants[index]?.mrp?.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`variants.${index}.sellingPrice`}>Selling Price *</Label>
+                            <Input
+                              id={`variants.${index}.sellingPrice`}
+                              type="number"
+                              step="0.01"
+                              {...register(`variants.${index}.sellingPrice`, { valueAsNumber: true })}
+                              placeholder="0.00"
+                              disabled={isLoading}
+                            />
+                            {errors.variants?.[index]?.sellingPrice && (
+                              <p className="text-sm text-destructive">
+                                {errors.variants[index]?.sellingPrice?.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`variants.${index}.stock`}>Stock Quantity *</Label>
+                            <Input
+                              id={`variants.${index}.stock`}
+                              type="number"
+                              {...register(`variants.${index}.stock`, { valueAsNumber: true })}
+                              placeholder="0"
+                              disabled={isLoading}
+                            />
+                            {errors.variants?.[index]?.stock && (
+                              <p className="text-sm text-destructive">
+                                {errors.variants[index]?.stock?.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mt-4 border rounded-md p-4 bg-muted/20">
+                          <Label>Variant Images</Label>
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.images`}
+                            render={({ field: imageField }) => (
+                              <MediaSection
+                                media={imageField.value || []}
+                                onChange={(newMedia) => imageField.onChange(newMedia)}
+                                maxFiles={5}
+                                maxSizeMB={5}
+                              />
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`variants.${index}.sortOrder`}>Sort Order</Label>
+                            <Input
+                              id={`variants.${index}.sortOrder`}
+                              type="number"
+                              {...register(`variants.${index}.sortOrder`, { valueAsNumber: true })}
+                              placeholder="0"
+                              disabled={isLoading}
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2 pt-8">
+                            <Controller
+                              name={`variants.${index}.isActive`}
+                              control={control}
+                              render={({ field: activeField }) => (
+                                <Switch
+                                  id={`variants.${index}.isActive`}
+                                  checked={activeField.value}
+                                  onCheckedChange={activeField.onChange}
+                                />
+                              )}
+                            />
+                            <Label htmlFor={`variants.${index}.isActive`}>Active</Label>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      appendVariant({
+                        name: `Variant ${variantFields.length + 1}`,
+                        sku: "",
+                        images: [],
+                        mrp: 0,
+                        sellingPrice: 0,
+                        stock: 0,
+                        isActive: true,
+                        sortOrder: variantFields.length,
+                      })
+                    }
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Another Variant
+                  </Button>
+                  {errors.variants && typeof errors.variants.message === "string" && (
+                    <p className="text-sm text-destructive">{errors.variants.message}</p>
                   )}
-                </CardContent>
-              </Card>
-
-              {/* Pricing & Stock */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pricing & Inventory</CardTitle>
-                  <CardDescription>Set product pricing and stock levels</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="mrp">MRP *</Label>
-                      <Input
-                        id="mrp"
-                        type="number"
-                        step="0.01"
-                        {...register("mrp", { valueAsNumber: true })}
-                        placeholder="0.00"
-                      />
-                      {errors.mrp && (
-                        <p className="text-sm text-destructive">{errors.mrp.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="sellingPrice">Selling Price *</Label>
-                      <Input
-                        id="sellingPrice"
-                        type="number"
-                        step="0.01"
-                        {...register("sellingPrice", { valueAsNumber: true })}
-                        placeholder="0.00"
-                      />
-                      {errors.sellingPrice && (
-                        <p className="text-sm text-destructive">{errors.sellingPrice.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="stock">Stock Quantity *</Label>
-                    <Input
-                      id="stock"
-                      type="number"
-                      {...register("stock", { valueAsNumber: true })}
-                      placeholder="0"
-                    />
-                    {errors.stock && (
-                      <p className="text-sm text-destructive">{errors.stock.message}</p>
-                    )}
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

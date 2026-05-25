@@ -32,6 +32,7 @@ import {
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatCurrency } from "@/utils/format";
+import { getPrimaryVariant, getVariantDisplayDetails } from "@/lib/variant-helpers";
 import {
   deleteProduct,
   toggleProductFeatured,
@@ -141,11 +142,13 @@ export function ProductsTableClient({
                 </TableRow>
               ) : (
                 products.map((product: any) => {
+                  const primaryVariant = getPrimaryVariant(product.variants);
+                  const displayDetails = getVariantDisplayDetails(primaryVariant);
                   return (
                     <TableRow key={product.id}>
                       <TableCell>
                         <Image
-                          src={product.images?.[0] || "/placeholder.png"}
+                          src={displayDetails.image}
                           alt={product.title}
                           width={50}
                           height={50}
@@ -158,11 +161,11 @@ export function ProductsTableClient({
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-medium">
-                            {formatCurrency(product.sellingPrice)}
+                            {formatCurrency(displayDetails.price)}
                           </span>
-                          {product.mrp > product.sellingPrice && (
+                          {displayDetails.mrp > displayDetails.price && (
                             <span className="text-xs text-muted-foreground line-through">
-                              {formatCurrency(product.mrp)}
+                              {formatCurrency(displayDetails.mrp)}
                             </span>
                           )}
                         </div>
@@ -170,9 +173,9 @@ export function ProductsTableClient({
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={product.stock === 0 ? "text-muted-foreground" : ""}
+                          className={displayDetails.stock === 0 ? "text-muted-foreground" : ""}
                         >
-                          {product.stock} units
+                          {displayDetails.stock} units
                         </Badge>
                       </TableCell>
                       <TableCell>

@@ -10,10 +10,18 @@ interface ProductCarouselProps {
     title: string;
     slug: string;
     shortDescription: string | null;
-    images: string[];
-    mrp: number;
-    sellingPrice: number;
-    stock: number;
+    variants: Array<{
+      id: string;
+      name: string;
+      sku: string | null;
+      images: string[];
+      mrp: number;
+      sellingPrice: number;
+      stock: number;
+      isActive: boolean;
+      sortOrder: number;
+      createdAt: Date;
+    }>;
     isFeatured?: boolean;
     isBestSeller?: boolean;
     isNewArrival?: boolean;

@@ -10,10 +10,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatPrice } from "@/utils/format";
-import { Heart, Minus, Plus, Share2, ShoppingCart, Star, Copy, Check, Loader2 } from "lucide-react";
+import { Heart, Minus, Plus, Share2, ShoppingCart, Star, Copy, Check, Loader2, Truck, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/hooks/use-cart-db";
+import { getPrimaryVariant, getVariantDisplayDetails, BaseVariant } from "@/lib/variant-helpers";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { toast } from "sonner";
 
@@ -22,9 +24,7 @@ interface ProductInfoProps {
     id: string;
     title: string;
     shortDescription: string | null;
-    mrp: number;
-    sellingPrice: number;
-    stock: number;
+    variants: BaseVariant[];
     tags: string[];
     isFeatured?: boolean;
     isBestSeller?: boolean;
@@ -33,25 +33,35 @@ interface ProductInfoProps {
     avgRating?: number;
     reviewCount?: number;
   };
+  selectedVariantId: string;
+  onVariantChange: (variantId: string) => void;
 }
 
-export function ProductInfo({ product }: ProductInfoProps) {
+export function ProductInfo({ product, selectedVariantId, onVariantChange }: ProductInfoProps) {
+  const activeVariants = product.variants?.filter(v => v.isActive) || [];
+  const initialVariant = getPrimaryVariant(product.variants) as BaseVariant | undefined;
+
+  const selectedVariant =
+    activeVariants.find((v) => v.id === selectedVariantId) || initialVariant;
   const [quantity, setQuantity] = useState(1);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { addItem, isProductLoading, isInCart } = useCart();
   const { isInWishlist, toggleItem, isProductLoading: isWishlistLoading } = useWishlist();
   const inWishlist = isInWishlist(product.id);
-  const inCart = isInCart(product.id);
-  const isAddingToCart = isProductLoading(product.id);
+  const inCart = selectedVariant ? isInCart(product.id, selectedVariant.id) : false;
+  const loadingKey = selectedVariant ? `${product.id}:${selectedVariant.id}` : product.id;
+  const isAddingToCart = isProductLoading(loadingKey);
   const isTogglingWishlist = isWishlistLoading(product.id);
 
-  const discount = Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100);
-  const isOutOfStock = product.stock === 0;
+  const displayDetails = selectedVariant ? getVariantDisplayDetails(selectedVariant) : { mrp: 0, price: 0, stock: 0, image: '' };
+  const currentStock = displayDetails.stock;
+  const discount = Math.round(((displayDetails.mrp - displayDetails.price) / displayDetails.mrp) * 100);
+  const isOutOfStock = currentStock === 0;
 
   const handleQuantityChange = (delta: number) => {
     const newQty = quantity + delta;
-    if (newQty >= 1 && newQty <= product.stock) {
+    if (newQty >= 1 && newQty <= currentStock) {
       setQuantity(newQty);
     }
   };
@@ -65,13 +75,19 @@ export function ProductInfo({ product }: ProductInfoProps) {
     try {
       if (inCart) {
         // Remove from cart if already in cart
-        const cartItem = useCart.getState().items.find((item) => item.productId === product.id);
+        const cartItem = selectedVariant
+          ? useCart.getState().items.find((item) => item.productId === product.id && item.variantId === selectedVariant.id)
+          : undefined;
         if (cartItem) {
           await useCart.getState().removeItem(cartItem.id);
         }
       } else {
         // Add to cart
-        await addItem(product.id, product.title, quantity);
+        if (selectedVariant) {
+          await addItem(product.id, product.title, quantity, selectedVariant.id);
+        } else {
+          toast.error("Please select a variant first");
+        }
       }
     } catch (error) {
       // Error toast is handled in the hook
@@ -119,176 +135,157 @@ export function ProductInfo({ product }: ProductInfoProps) {
     }
   };
 
+  // Find a suitable category name from tags or default to DECOR ITEMS
+  const categoryLabel = product.tags?.[0]?.toUpperCase() || "DECOR ITEMS";
+
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          {product.isNewArrival && (
-            <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-              New Arrival
-            </Badge>
-          )}
-          {product.isBestSeller && (
-            <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200 border-orange-200 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-              Bestseller
-            </Badge>
-          )}
-          {product.isFeatured && (
-            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-              Featured
-            </Badge>
-          )}
-        </div>
+    <div className="flex flex-col h-full justify-start pt-2 lg:pt-4 space-y-2">
+      {/* Category / Subtitle */}
+      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#c48b6c] mb-1">
+        {categoryLabel}
+      </span>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight tracking-tight">
-          {product.title}
-        </h1>
-        {/* Description */}
-        {product.shortDescription && (
-          <p className="text-base text-gray-600 leading-relaxed ">{product.shortDescription}</p>
-        )}
-        <div className="flex items-center gap-4">
-          {product.avgRating !== undefined && product.reviewCount !== undefined && (
-            <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
-              <div className="flex items-center gap-0.5">
-                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="font-bold text-sm text-gray-900">
-                  {product.avgRating.toFixed(1)}
-                </span>
-              </div>
-              <span className="text-gray-300 text-xs">|</span>
-              <span className="text-xs text-gray-600 underline decoration-gray-300 underline-offset-4">
-                {product.reviewCount} reviews
-              </span>
-            </div>
-          )}
+      {/* Product Title */}
+      <h1 className="text-4xl md:text-[44px] font-bold text-gray-900 leading-tight tracking-tight mb-2">
+        {product.title}
+      </h1>
 
-          {product.stock > 0 && product.stock <= 10 && (
-            <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100">
-              Only {product.stock} left!
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Price Section */}
-      <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 space-y-2">
-        <div className="flex items-baseline gap-3">
-          <span className="text-4xl font-bold text-gray-900 tracking-tight">
-            {formatPrice(product.sellingPrice)}
+      {/* Price & Rating Section */}
+      <div className="flex items-center gap-4 mb-6">
+        <span className="text-2xl md:text-3xl font-extrabold text-[#234338]">
+          {formatPrice(displayDetails.price)}
+        </span>
+        {discount > 0 && (
+          <span className="text-base text-gray-400 line-through font-medium">
+            {formatPrice(displayDetails.mrp)}
           </span>
-          {discount > 0 && (
-            <div className="flex flex-col items-start">
-              <span className="text-lg text-gray-400 line-through font-medium">
-                {formatPrice(product.mrp)}
-              </span>
-              <span className="text-red-600 font-bold text-xs bg-red-50 px-2 py-0.5 rounded-md">
-                Save {discount}%
-              </span>
-            </div>
-          )}
-        </div>
-        <p className="text-xs text-gray-500 font-medium flex items-center gap-1.5">
-          <Check className="w-3.5 h-3.5 text-green-500" />
-          Inclusive of all taxes
-        </p>
+        )}
+        {product.avgRating !== undefined && product.avgRating > 0 && (
+          <div className="flex items-center gap-1 bg-[#f4f4f4] px-2.5 py-1 rounded-full border border-gray-100">
+            <Star className="w-3.5 h-3.5 fill-[#234338] text-[#234338]" />
+            <span className="font-bold text-xs text-gray-800">
+              {product.avgRating.toFixed(1)}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Actions */}
-      <div className="space-y-4 pt-2">
-        {!isOutOfStock ? (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex items-center border border-gray-200 rounded-lg bg-white w-fit h-14 sm:h-12">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleQuantityChange(-1)}
-                disabled={quantity <= 1}
-                className="h-full w-14 sm:w-12 rounded-l-lg hover:bg-gray-50"
+      {/* Short Description */}
+      {product.shortDescription && (
+        <p className="text-sm md:text-[15px] text-gray-500 leading-relaxed font-normal mb-8 max-w-lg">
+          {product.shortDescription}
+        </p>
+      )}
+
+      {/* Custom Option Card Container */}
+      <div className="bg-white border border-gray-100/80 rounded-[32px] p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] max-w-lg">
+        {/* Row 1: Select Variant & Quantity */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end mb-6">
+          {/* Select Variant */}
+          {activeVariants.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">
+                Select Variant
+              </label>
+              <Select
+                value={selectedVariant?.id || ""}
+                onValueChange={(variantId) => {
+                  onVariantChange(variantId);
+                  setQuantity(1);
+                }}
+                disabled={activeVariants.length <= 1}
               >
-                <Minus className="h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
-              <span className="w-14 sm:w-12 text-center font-bold text-lg sm:text-base">
+                <SelectTrigger className="w-full !h-14 bg-[#f4f4f4] border-0 !rounded-full px-5 text-sm font-semibold text-gray-800 shadow-none focus:ring-0 focus:ring-offset-0 disabled:opacity-85">
+                  <SelectValue placeholder="Select variant" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-gray-100 shadow-lg">
+                  {activeVariants.map((variant) => (
+                    <SelectItem key={variant.id} value={variant.id} className="rounded-lg py-2.5">
+                      {variant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">
+                Select Variant
+              </label>
+              <div className="w-full h-14 bg-[#f4f4f4] rounded-full px-5 flex items-center text-sm font-semibold text-gray-400">
+                Default Variant
+              </div>
+            </div>
+          )}
+
+          {/* Quantity Selector */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">
+              Quantity
+            </label>
+            <div className="flex items-center justify-between bg-[#f4f4f4] rounded-full h-14 px-3 w-full">
+              <button
+                type="button"
+                onClick={() => handleQuantityChange(-1)}
+                disabled={quantity <= 1 || isOutOfStock}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-200/50 active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all text-gray-700 font-bold"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="font-bold text-sm text-gray-800 select-none">
                 {quantity}
               </span>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
+                type="button"
                 onClick={() => handleQuantityChange(1)}
-                disabled={quantity >= product.stock}
-                className="h-full w-14 sm:w-12 rounded-r-lg hover:bg-gray-50"
+                disabled={quantity >= currentStock || isOutOfStock}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-200/50 active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all text-gray-700 font-bold"
               >
-                <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
+                <Plus className="h-4 w-4" />
+              </button>
             </div>
-
-            <Button
-              className={`flex-1 min-h-14 sm:min-h-12 h-14 sm:h-12 px-6 py-3 rounded-lg text-base font-semibold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 disabled:opacity-50 ${
-                inCart ? "" : "bg-cyan-600 hover:bg-cyan-700 text-white"
-              }`}
-              onClick={handleAddToCart}
-              disabled={isAddingToCart}
-              variant={inCart ? "outline" : "default"}
-            >
-              {isAddingToCart ? (
-                <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 animate-spin" />
-              ) : (
-                <>
-                  <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
-                  {inCart ? "Remove from Cart" : "Add to Cart"}
-                </>
-              )}
-            </Button>
           </div>
-        ) : (
-          <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
-            <p className="text-red-600 font-bold text-base">Currently Out of Stock</p>
+        </div>
+
+        {/* Row 2: Add to Cart Button */}
+        {isOutOfStock ? (
+          <div className="bg-red-50/50 border border-red-100 rounded-[20px] p-4 text-center mb-6">
+            <p className="text-red-600 font-bold text-sm">Currently Out of Stock</p>
             <p className="text-red-500 text-xs mt-0.5">We'll notify you when it's back!</p>
           </div>
+        ) : (
+          <Button
+            className={`w-full h-14 rounded-full text-sm font-bold shadow-none transition-all duration-200 uppercase tracking-wider mb-6 ${
+              inCart
+                ? "bg-transparent border-2 border-gray-200 text-gray-800 hover:bg-gray-50"
+                : "bg-[#234338] hover:bg-[#1a332a] text-white"
+            }`}
+            onClick={handleAddToCart}
+            disabled={isAddingToCart}
+            variant={inCart ? "outline" : "default"}
+          >
+            {isAddingToCart ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : inCart ? (
+              "Remove from Cart"
+            ) : (
+              "Add to Cart"
+            )}
+          </Button>
         )}
 
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="flex-1 h-12 rounded-lg border hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-gray-700 text-sm disabled:opacity-50"
-            onClick={handleWishlistToggle}
-            disabled={isTogglingWishlist}
-          >
-            {isTogglingWishlist ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Heart className={`h-4 w-4 mr-2 ${inWishlist ? "fill-red-500 text-red-500" : ""}`} />
-            )}
-            {inWishlist ? "Saved" : "Wishlist"}
-          </Button>
-
-          <Button
-            variant="outline"
-            className="flex-1 h-12 rounded-lg border hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-gray-700 text-sm"
-            onClick={() => setShareDialogOpen(true)}
-          >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
+        {/* Row 3: Trust Badges */}
+        <div className="flex justify-center items-center gap-6 pt-4 border-t border-gray-100/60">
+          <span className="flex items-center gap-2 text-[10px] font-bold text-gray-400 tracking-wider uppercase">
+            <Truck className="w-4 h-4 text-gray-400" />
+            Express Delivery
+          </span>
+          <span className="flex items-center gap-2 text-[10px] font-bold text-gray-400 tracking-wider uppercase">
+            <CheckCircle className="w-4 h-4 text-gray-400" />
+            Quality Guaranteed
+          </span>
         </div>
       </div>
-
-      {/* Tags */}
-      {product.tags.length > 0 && (
-        <div className="pt-4 border-t border-gray-100">
-          <div className="flex flex-wrap gap-2">
-            {product.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors cursor-default"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Share Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>

@@ -17,10 +17,13 @@ import { toast } from "sonner";
 export interface CartItem {
   id: string;
   productId: string;
+  variantId: string;
+  variantName: string;
   name: string;
   slug: string;
   image: string;
   price: number;
+  mrp: number;
   quantity: number;
   inStock: boolean;
   stockQuantity: number;
@@ -39,7 +42,7 @@ interface CartStore {
   loadingProducts: Set<string>;
   fetchCart: () => Promise<void>;
   fetchShippingConfig: () => Promise<void>;
-  addItem: (productId: string, name: string, quantity?: number) => Promise<void>;
+  addItem: (productId: string, name: string, quantity?: number, variantId?: string) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -50,7 +53,7 @@ interface CartStore {
   getShipping: () => number;
   getTotal: () => number;
   getTotalItems: () => number;
-  isInCart: (productId: string) => boolean;
+  isInCart: (productId: string, variantId?: string) => boolean;
   isProductLoading: (productId: string) => boolean;
 }
 
@@ -96,19 +99,24 @@ export const useCart = create<CartStore>((set, get) => ({
     }
   },
 
-  addItem: async (productId: string, name: string, quantity: number = 1) => {
-    const existingItem = get().items.find((item) => item.productId === productId);
+  addItem: async (productId: string, name: string, quantity: number = 1, variantId?: string) => {
+    if (!variantId) {
+      toast.error("Please select a product variant");
+      return;
+    }
+    const existingItem = get().items.find((item) => item.variantId === variantId);
     const previousItems = get().items;
+    const loadingKey = `${productId}:${variantId}`;
 
     // Set loading state for this product
-    set({ loadingProducts: new Set([...get().loadingProducts, productId]) });
+    set({ loadingProducts: new Set([...get().loadingProducts, loadingKey]) });
 
     // Optimistic update - immediately update UI
     if (existingItem) {
       // Item already in cart - update quantity
       set({
         items: get().items.map((item) =>
-          item.productId === productId ? { ...item, quantity: item.quantity + quantity } : item
+          item.variantId === variantId ? { ...item, quantity: item.quantity + quantity } : item
         ),
       });
     } else {
@@ -116,10 +124,13 @@ export const useCart = create<CartStore>((set, get) => ({
       const optimisticNewItem: CartItem = {
         id: `temp-${Date.now()}`,
         productId,
+        variantId,
+        variantName: "",
         name,
         slug: "",
         image: "",
         price: 0,
+        mrp: 0,
         quantity,
         inStock: true,
         stockQuantity: 999,
@@ -128,7 +139,7 @@ export const useCart = create<CartStore>((set, get) => ({
     }
 
     try {
-      const result = await addToCartAction(productId, quantity);
+      const result = await addToCartAction(productId, quantity, variantId);
       if (result.success) {
         // Fetch updated cart from server to get real data
         await get().fetchCart();
@@ -152,7 +163,7 @@ export const useCart = create<CartStore>((set, get) => ({
     } finally {
       // Remove loading state
       const newLoadingProducts = new Set(get().loadingProducts);
-      newLoadingProducts.delete(productId);
+      newLoadingProducts.delete(loadingKey);
       set({ loadingProducts: newLoadingProducts });
     }
   },
@@ -255,12 +266,16 @@ export const useCart = create<CartStore>((set, get) => ({
     return get().items.reduce((total, item) => total + item.quantity, 0);
   },
 
-  isInCart: (productId: string) => {
+  isInCart: (productId: string, variantId?: string) => {
+    if (variantId) {
+      return get().items.some((item) => item.productId === productId && item.variantId === variantId);
+    }
     return get().items.some((item) => item.productId === productId);
   },
 
-  isProductLoading: (productId: string) => {
-    return get().loadingProducts.has(productId);
+  isProductLoading: (key: string) => {
+    if (get().loadingProducts.has(key)) return true;
+    return Array.from(get().loadingProducts).some((k) => k.startsWith(`${key}:`));
   },
 
   clearState: () => {

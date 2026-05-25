@@ -22,6 +22,7 @@ interface WishlistItemCardProps {
       sellingPrice: number;
       mrp: number;
       stock: number;
+      primaryVariantId?: string | null;
       shortDescription?: string | null;
       category: {
         id: string;
@@ -61,14 +62,14 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
   };
 
   const handleAddToCart = async () => {
-    if (product.stock <= 0) {
+    if (product.stock <= 0 || !product.primaryVariantId) {
       toast.error("Product is out of stock");
       return;
     }
 
     setIsAddingToCart(true);
     try {
-      await addItem(product.id, product.title, 1);
+      await addItem(product.id, product.title, 1, product.primaryVariantId);
       toast.success("Added to cart");
     } catch (error) {
       toast.error("Failed to add to cart");

@@ -4,6 +4,7 @@ import { prisma } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { getPrimaryVariant, getVariantDisplayDetails } from "@/lib/variant-helpers";
 
 // Get user's wishlist - OPTIMIZED
 export async function getWishlist() {
@@ -31,10 +32,9 @@ export async function getWishlist() {
             id: true,
             title: true,
             slug: true,
-            images: true,
-            sellingPrice: true,
-            mrp: true,
-            stock: true,
+            variants: {
+              orderBy: { sortOrder: 'asc' }
+            },
             shortDescription: true,
             isActive: true,
             category: {
@@ -50,7 +50,29 @@ export async function getWishlist() {
       orderBy: { createdAt: "desc" },
     });
 
-    return { success: true, data: { items: wishlistItems } };
+    // Map variants to legacy format for UI
+    const mappedItems = wishlistItems.map(item => {
+      const primaryVariant = getPrimaryVariant(item.product.variants as any);
+      const displayDetails = getVariantDisplayDetails(primaryVariant);
+      return {
+        ...item,
+        product: {
+          id: item.product.id,
+          title: item.product.title,
+          slug: item.product.slug,
+          images: Array.from(new Set(item.product.variants.flatMap((v: any) => v.images))),
+          sellingPrice: displayDetails.price,
+          mrp: displayDetails.mrp,
+          stock: displayDetails.stock,
+          primaryVariantId: primaryVariant?.id || null,
+          shortDescription: item.product.shortDescription,
+          isActive: item.product.isActive,
+          category: item.product.category,
+        }
+      };
+    });
+
+    return { success: true, data: { items: mappedItems } };
   } catch (error) {
     console.error("Error fetching wishlist:", error);
     return { success: false, error: "Failed to fetch wishlist" };

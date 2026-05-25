@@ -26,8 +26,14 @@ export async function getUserOrders() {
               select: {
                 id: true,
                 title: true,
-                images: true,
                 slug: true,
+              },
+            },
+            variant: {
+              select: {
+                id: true,
+                name: true,
+                images: true,
               },
             },
           },
@@ -68,8 +74,14 @@ export async function getUserOrder(orderId: string) {
               select: {
                 id: true,
                 title: true,
-                images: true,
                 slug: true,
+              },
+            },
+            variant: {
+              select: {
+                id: true,
+                name: true,
+                images: true,
               },
             },
           },

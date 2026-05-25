@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/prisma/db";
+import { getPrimaryVariant } from "@/lib/variant-helpers";
 
 export interface ProductFilters {
   categorySlug?: string;
@@ -110,6 +111,9 @@ export async function getFilteredProducts(filters: ProductFilters = {}) {
       where,
       include: {
         category: true,
+        variants: {
+          orderBy: { sortOrder: 'asc' }
+        },
         reviews: {
           select: {
             rating: true,
@@ -119,10 +123,11 @@ export async function getFilteredProducts(filters: ProductFilters = {}) {
       orderBy,
     });
 
-    // Filter by availability (direct stock check)
+    // Filter by availability (stock check across variants)
     if (availability && availability !== "all") {
       products = products.filter((product) => {
-        const hasStock = product.stock > 0;
+        const totalStock = product.variants?.reduce((sum: number, v: any) => sum + v.stock, 0) || 0;
+        const hasStock = totalStock > 0;
 
         if (availability === "in-stock") {
           return hasStock;
@@ -154,9 +159,17 @@ export async function getFilteredProducts(filters: ProductFilters = {}) {
 
     // Sort by price or rating (in memory)
     if (sortBy === "price-asc") {
-      filteredProducts.sort((a, b) => a.sellingPrice - b.sellingPrice);
+      filteredProducts.sort((a, b) => {
+        const aPrice = getPrimaryVariant(a.variants)?.sellingPrice || 0;
+        const bPrice = getPrimaryVariant(b.variants)?.sellingPrice || 0;
+        return aPrice - bPrice;
+      });
     } else if (sortBy === "price-desc") {
-      filteredProducts.sort((a, b) => b.sellingPrice - a.sellingPrice);
+      filteredProducts.sort((a, b) => {
+        const aPrice = getPrimaryVariant(a.variants)?.sellingPrice || 0;
+        const bPrice = getPrimaryVariant(b.variants)?.sellingPrice || 0;
+        return bPrice - aPrice;
+      });
     } else if (sortBy === "rating") {
       filteredProducts.sort((a, b) => b.averageRating - a.averageRating);
     }
@@ -190,6 +203,9 @@ export async function getProductWithReviews(slug: string) {
       where: { slug },
       include: {
         category: true,
+        variants: {
+          orderBy: { sortOrder: 'asc' }
+        },
         reviews: {
           include: {
             user: {
@@ -246,6 +262,9 @@ export async function getRelatedProducts(productId: string, categoryId: string, 
       },
       include: {
         category: true,
+        variants: {
+          orderBy: { sortOrder: 'asc' }
+        },
         reviews: {
           select: { rating: true },
         },

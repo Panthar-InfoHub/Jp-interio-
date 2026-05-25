@@ -49,22 +49,23 @@ export function Header() {
   return (
     <nav className="bg-background text-foreground border sticky top-0 z-50">
       <div className="container mx-auto md:px-4">
-        <div className="flex items-center justify-between gap-2 sm:gap-4 py-2">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 py-1">
           {/* Logo - Left */}
           <Link href="/" className="flex items-center gap-1 shrink-0">
-            <div className="rounded-lg relative w-44 h-12">
+            <div className="rounded-lg relative w-36 h-12 md:w-40 h-16 lg:w-44 h-18">
               <Image
                 src={siteConfig.logo.path}
                 alt={siteConfig.logo.alt}
                 fill
                 className="rounded-lg object-contain"
+                priority
               />
             </div>
             {/* <span className="text-xl font-semibold  sm:inline">{siteConfig.name}</span> */}
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-4 flex-1">
+          <div className="hidden lg:flex items-center justify-center gap-6 flex-1">
             {navigationLinks.map((link) => (
               <Link
                 key={link.href}

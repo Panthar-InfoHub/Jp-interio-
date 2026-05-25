@@ -160,8 +160,7 @@ async function handlePaymentSuccess(paymentEntity: any, orderEntity: any) {
       if (order.status === "PENDING") {
         await deductStockForOrder(
           order.items.map((item) => ({
-            productId: item.productId,
-            variantDetails: item.variantDetails as { weight: string; price: number },
+            variantId: item.variantId,
             quantity: item.quantity,
           })),
           tx

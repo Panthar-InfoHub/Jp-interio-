@@ -17,12 +17,15 @@ export async function CategoryGrid() {
         where: {
           isActive: true,
         },
-        orderBy: {
-          sellingPrice: "asc",
-        },
+        orderBy: { createdAt: "desc" },
         take: 1,
         select: {
-          sellingPrice: true,
+          variants: {
+            where: { isActive: true },
+            orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+            take: 1,
+            select: { sellingPrice: true },
+          },
         },
       },
     },
@@ -40,7 +43,7 @@ export async function CategoryGrid() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
           {categories.map((category) => {
-            const minPrice = category.products[0]?.sellingPrice;
+            const minPrice = category.products[0]?.variants?.[0]?.sellingPrice;
 
             return (
               <Link key={category.id} href={`/categories/${category.slug}`} className="group">
