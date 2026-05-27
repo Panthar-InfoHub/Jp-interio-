@@ -74,6 +74,8 @@ export default async function CheckoutPage() {
                 ? {
                   shippingCharge: siteConfig.shippingCharge,
                   freeShippingMinOrder: siteConfig.freeShippingMinOrder,
+                  cgstRate: siteConfig.cgstRate ?? 9,
+                  sgstRate: siteConfig.sgstRate ?? 9,
                 }
                 : null
             }

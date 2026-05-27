@@ -26,6 +26,9 @@ interface OrderDetails {
   status: OrderStatus;
   subtotal: number;
   discount: number;
+  taxableAmount: number;
+  cgstAmount: number;
+  sgstAmount: number;
   taxAmount: number;
   shippingFee: number;
   total: number;
@@ -99,7 +102,7 @@ export function OrderDetailsDialog({ orderId, open, onOpenChange }: OrderDetails
       setLoading(true);
       getOrder(orderId).then((result) => {
         if (result.success && result.data) {
-          setOrder(result.data as OrderDetails);
+          setOrder(result.data as unknown as OrderDetails);
         }
         setLoading(false);
       });
@@ -181,6 +184,22 @@ export function OrderDetailsDialog({ orderId, open, onOpenChange }: OrderDetails
                       </p>
                     </div>
                   )}
+                  {order.taxAmount > 0 && (
+                    <>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Taxable Amount</p>
+                        <p className="font-semibold">{formatCurrency(order.taxableAmount)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">CGST</p>
+                        <p className="font-semibold">{formatCurrency(order.cgstAmount)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">SGST</p>
+                        <p className="font-semibold">{formatCurrency(order.sgstAmount)}</p>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Shipping</p>
                     <p className="font-semibold">
@@ -194,8 +213,8 @@ export function OrderDetailsDialog({ orderId, open, onOpenChange }: OrderDetails
                 </div>
               </div>
 
-              {/* Shipping Address & Payment Info - 2 Columns */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Addresses & Payment Info - 3 Columns */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Shipping Address */}
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-3">
@@ -218,6 +237,38 @@ export function OrderDetailsDialog({ orderId, open, onOpenChange }: OrderDetails
                     {order.shippingAddress.phone && (
                       <p className="text-sm text-muted-foreground mt-2">
                         📞 {order.shippingAddress.phone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Billing Address */}
+                <div className="p-4 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MapPin className="h-4 w-4" />
+                    <h3 className="font-semibold">Billing Address</h3>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {(order.billingAddress || order.shippingAddress).firstName} {(order.billingAddress || order.shippingAddress).lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {(order.billingAddress || order.shippingAddress).address}
+                      {(order.billingAddress || order.shippingAddress).apartment && `, ${(order.billingAddress || order.shippingAddress).apartment}`}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {(order.billingAddress || order.shippingAddress).city}, {(order.billingAddress || order.shippingAddress).state}{" "}
+                      {(order.billingAddress || order.shippingAddress).pinCode}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{(order.billingAddress || order.shippingAddress).country}</p>
+                    {(order.billingAddress || order.shippingAddress).phone && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        📞 {(order.billingAddress || order.shippingAddress).phone}
+                      </p>
+                    )}
+                    {order.billingAddress?.gstNumber && (
+                      <p className="text-sm font-medium mt-1">
+                        GST: {order.billingAddress.gstNumber}
                       </p>
                     )}
                   </div>

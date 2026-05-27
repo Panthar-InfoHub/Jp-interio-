@@ -1,9 +1,9 @@
 export const siteConfig = {
   // Basic Site Information
-  title: "Vyomtics",
-  name: "Vyomtics",
+  title: "JP Interio",
+  name: "JP Interio",
   description:
-    "JP Interio is a technology-driven organization dedicated to advancing Robotics, IoT, AI, and Drone education across India. We provide high-quality components, innovative solutions, and complete lab setup services for schools, colleges, universities, industries, and startups.",
+    "Discover JP Interio, where style meets sustainability to create beautiful, eco-friendly spaces.",
   domain: "https://jpinterio.com",
   // Logo
   logo: {
@@ -14,25 +14,25 @@ export const siteConfig = {
   // Contact Information
   contact: {
     email: "[EMAIL_ADDRESS]",
-    phone: "+91 9758367474",
-    alternatePhone: "+91 9758367373",
-    whatsapp: "919758367474", // Format: country code + number (no spaces or special characters)
-    address: "Vyomtics ( Powered by N.L Enterprises), Dayalbagh, Agra 282005",
-    secondAddress: "NX-One Greater Noida 201318",
+    phone: "+91 7068999458",
+    alternatePhone: "+91 7068999458",
+    whatsapp: "917068999458", // Format: country code + number (no spaces or special characters)
+    address: "Near JMK Showroom, Avas Vikas Phase 2, Jhansi, Uttar Pradesh 284003",
+    secondAddress: "Near Hanuman Mandir, Avas Vikas Phase 2, Jhansi, Uttar Pradesh 284003",
   },
 
   // Social Media Links
   social: {
     facebook: "",
-    instagram: "https://www.instagram.com/vyomtics",
+    instagram: "#",
     twitter: "",
-    youtube: "https://www.youtube.com/@VyomticsPoweredbyN.LEnterprise",
+    youtube: "#",
     linkedin: "",
   },
 
   // Admin Panel
   admin: {
-    title: "Vyomtics",
+    title: "JP Interio",
     subtitle: "Admin Panel",
   },
 } as const;

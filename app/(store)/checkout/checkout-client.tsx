@@ -28,6 +28,8 @@ interface CheckoutClientProps {
   initialShippingConfig: {
     shippingCharge: number | null;
     freeShippingMinOrder: number | null;
+    cgstRate: number;
+    sgstRate: number;
   } | null;
 }
 

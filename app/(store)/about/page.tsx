@@ -4,7 +4,7 @@ import { generatePageMetadata } from "@/lib/metadata";
 export const metadata = generatePageMetadata({
   title: "About Us",
   description:
-    "Vyomtics is a technology-driven organization dedicated to advancing Robotics, IoT, AI, and Drone education across India.",
+    "JP Interio is a technology-driven organization dedicated to advancing interior design and furniture solutions across India.",
 });
 
 export default function AboutPage() {
@@ -15,13 +15,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-6 py-16 md:py-24 max-w-5xl">
           <div className="text-center space-y-5">
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-semibold text-gray-900 tracking-tight">
-              About Vyomtics
+              About JP Interio
             </h1>
             <p className="text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-              A technology-driven organization dedicated to advancing Robotics, IoT, AI, and Drone
-              education across India. We provide high-quality components, innovative solutions, and
-              complete lab setup services for schools, colleges, universities, industries, and
-              startups.
+              A design-driven interior solutions company dedicated to creating modern, functional, and aesthetically refined spaces. We specialize in residential, commercial, and luxury interior design services, offering innovative concepts, customized solutions, and complete turnkey execution for homes, offices, retail spaces, hotels, and businesses.
             </p>
           </div>
         </div>
@@ -35,7 +32,7 @@ export default function AboutPage() {
             <div className="lg:col-span-2">
               <div className="relative aspect-square max-w-[280px] md:max-w-[280px] mx-auto w-full rounded-xl overflow-hidden shadow-lg">
                 <Image
-                  src="/images/ceo.jpg"
+                  src="/image/ceo.png"
                   alt="Nishant Kishor Sharma - Founder & CEO"
                   fill
                   className="object-cover"
@@ -44,7 +41,7 @@ export default function AboutPage() {
               </div>
               <div className="mt-5 text-center">
                 <p className="font-semibold text-lg md:text-xl text-gray-900">
-                  Nishant Kishor Sharma
+                  Pavneet Singh
                 </p>
                 <p className="text-gray-600 mt-1 text-sm md:text-base">Founder & CEO</p>
               </div>
@@ -57,21 +54,16 @@ export default function AboutPage() {
                   Founder's Vision
                 </p>
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 leading-tight mb-6">
-                  Building the future of technology education in India
+                  Designing Timeless Spaces for Modern Living
                 </h2>
               </div>
 
               <div className="space-y-4">
                 <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                  "At Vyomtics, our vision is to make technology simple, accessible, and
-                  transformative for every learner and institution in India. We don't just deliver
-                  robotics, IoT, and drone solutions — we build possibilities."
+                  "At JP INTERIO, our vision is to transform spaces into experiences that inspire comfort, functionality, and elegance. We don’t just create interiors and furniture — we craft environments that reflect personality, lifestyle, and modern living with creativity and precision."
                 </p>
                 <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                  "Our mission is to empower the next generation with world-class tools, hands-on
-                  learning, and innovative thinking. With passion, precision, and purpose, Vyomtics
-                  is committed to shaping a future where every student becomes a creator and every
-                  idea becomes reality."
+                  "Our mission is to deliver innovative interior design solutions and premium furniture that combine aesthetics with practicality. Through thoughtful design, quality craftsmanship, and attention to detail, we are committed to creating spaces where ideas come to life and every corner tells a story."
                 </p>
               </div>
             </div>
@@ -88,8 +80,7 @@ export default function AboutPage() {
                 Our Mission
               </h3>
               <p className="text-lg md:text-xl lg:text-2xl font-medium text-gray-900 leading-relaxed">
-                To empower India with advanced technology education by providing reliable products,
-                innovative solutions, and world-class lab infrastructure.
+                To create elegant, functional, and personalized interiors with premium furniture and timeless design solutions.
               </p>
             </div>
             <div>
@@ -97,10 +88,7 @@ export default function AboutPage() {
                 Founded By
               </h3>
               <p className="text-sm md:text-base text-gray-700 leading-relaxed">
-                Founded by Nishant Kishor Sharma, Vyomtics aims to make modern technology
-                accessible, practical, and impactful. With a strong focus on quality and hands-on
-                learning, we empower institutions and learners to build real-world skills and
-                embrace future technologies.
+                Founded by Pavneet Singh, the company aims to redefine modern interiors through creativity, functionality, and timeless design. With a strong focus on quality craftsmanship and personalized solutions, we create elegant spaces and furniture that enhance everyday living while reflecting style, comfort, and sophistication.
               </p>
             </div>
           </div>
@@ -113,17 +101,17 @@ export default function AboutPage() {
           <div className="mb-12">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">What We Do</h2>
             <p className="text-base md:text-lg text-gray-600">
-              Comprehensive solutions for the next generation of innovators
+              Comprehensive interior and furniture solutions for modern living spaces
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-x-8 gap-y-6">
             {[
-              "Robotics, IoT & Drone Components",
-              "Customized Drone & Automation Solutions",
-              "Setup of Robotics, IoT, AI & Drone Labs",
-              "Technical Training, Workshops & Skill Development",
-              "End-to-end Educational Technology Support",
+              "Residential & Commercial Interior Design",
+              "Customized Furniture Solutions",
+              "Turnkey Project Execution",
+              "3D Visualization & Walkthroughs",
+              "Material Selection & Procurement",
             ].map((item, index) => (
               <div key={index} className="flex items-start gap-3 group">
                 <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-cyan-600 mt-2.5" />
@@ -136,22 +124,22 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Why Vyomtics - Minimal Grid */}
+      {/* Why JP Interio - Minimal Grid */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="mb-12">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">
-              Why Choose Vyomtics?
+              Why Choose JP Interio?
             </h2>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
             {[
-              "High-quality and trusted components",
-              "Expert technical support & consultation",
-              "Fast and professional lab installation",
-              "Industry-oriented training programs",
-              "Trusted by institutions across India",
+              "High-quality and trusted materials",
+              "Wide range of materials and finishes",
+              "Professional project management",
+              "On-time delivery and installation",
+              "Post-project support and maintenance",
             ].map((item, index) => (
               <div key={index} className="group">
                 <div className="w-9 h-9 rounded-full bg-cyan-600 text-white flex items-center justify-center mb-3 text-sm font-medium group-hover:bg-cyan-700 transition-colors">
@@ -168,8 +156,8 @@ export default function AboutPage() {
       <section className="py-16 md:py-24 border-t">
         <div className="container mx-auto px-6 max-w-4xl text-center">
           <p className="text-xl md:text-2xl font-medium text-gray-900 leading-relaxed">
-            Vyomtics is committed to shaping the next generation of innovators through technology,
-            creativity, and practical learning.
+            JP Interio is committed to shaping the next generation of living spaces through creativity,
+            functionality, and timeless design.
           </p>
         </div>
       </section>

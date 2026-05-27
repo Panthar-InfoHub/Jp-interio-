@@ -16,6 +16,7 @@ import Link from "next/link";
 import { siteConfig } from "@/site.config";
 import Image from "next/image";
 import { VisualizeSection } from "@/components/store/home/visualize-section";
+import { InteriorExperienceSection } from "@/components/store/home/interior-experience-section";
 
 export const metadata = generatePageMetadata({
   path: "/",
@@ -71,12 +72,15 @@ export default async function HomePage() {
 
       <VisualizeSection />
 
-      <Testimonials />
+      
+
+      {/* <Testimonials /> */}
 
       <Suspense fallback={<ProductSectionSkeleton title="NEW LAUNCH" />}>
         <FeaturedProducts title="NEW LAUNCH" filter="new" />
       </Suspense>
-
+      
+      <InteriorExperienceSection />
       {/* <Achievements />
       <LabSetup />
       <NewsSection />

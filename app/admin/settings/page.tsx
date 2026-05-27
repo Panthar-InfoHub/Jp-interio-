@@ -21,7 +21,7 @@ export default async function SettingsPage() {
       <div>
         <h1 className="text-3xl font-bold">Site Settings</h1>
         <p className="text-muted-foreground mt-2">
-          Manage shipping charges, announcement bar, and other site configurations
+          Manage shipping, tax, invoice, and announcement settings
         </p>
       </div>
 
@@ -59,8 +59,8 @@ async function SettingsContent() {
       {/* Shipping Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Shipping Configuration</CardTitle>
-          <CardDescription>Set shipping charges and free shipping threshold</CardDescription>
+          <CardTitle>Store Configuration</CardTitle>
+          <CardDescription>Manage shipping, tax, invoice, and announcement settings</CardDescription>
         </CardHeader>
         <CardContent>
           <SiteConfigForm config={configResult.data!} />

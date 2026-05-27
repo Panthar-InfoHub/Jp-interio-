@@ -5,7 +5,7 @@ import { siteConfig } from "@/site.config";
 export const metadata = generatePageMetadata({
   title: "Contact Us",
   description:
-    "Get in touch with Vyomtics. We're here to help with Robotics, IoT, AI, and Drone solutions.",
+    "Get in touch with JP Interio. We're here to help with Furniture, Interior Design, and other related solutions.",
   path: "/contact",
 });
 
@@ -20,7 +20,7 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-              We're here to help you with Robotics, IoT, AI, and Drone solutions. Reach out to us
+              We're here to help you with Furniture, Interior Design, and other related solutions. Reach out to us
               anytime.
             </p>
           </div>
@@ -67,8 +67,8 @@ export default function ContactPage() {
                     Email
                   </h3>
                   <div className="space-y-2 text-gray-900">
-                    <p className="text-base">sales@vyomtics.com</p>
-                    <p className="text-base">nishant84300@gmail.com</p>
+                    <p className="text-base">sales@jpinterio.com</p>
+                    <p className="text-base">Kjenterprise@gmail.com</p>
                   </div>
                 </div>
 
@@ -78,11 +78,9 @@ export default function ContactPage() {
                     Visit Us
                   </h3>
                   <p className="text-base text-gray-900 leading-relaxed">
-                    Vyomtics powered by N.L Enterprises
+                    JP Interio
                     <br />
-                    Dayalbagh, Agra
-                    <br />
-                    Uttar Pradesh, India
+                    Near JMK Showroom, Avas Vikas Phase 2, Jhansi, Uttar Pradesh 284003
                   </p>
                 </div>
 
@@ -120,11 +118,11 @@ export default function ContactPage() {
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">
               Visit Our Location
             </h2>
-            <p className="text-base text-gray-600">Find us at Dayalbagh, Agra, Uttar Pradesh</p>
+            <p className="text-base text-gray-600">Find us at Jhansi, Uttar Pradesh</p>
           </div>
           <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d56779.05528095596!2d77.9820268!3d27.1974484!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x397479e17e526b5f%3A0x36962a67a60f081e!2sVyomtics!5e0!3m2!1sen!2sin!4v1766326290122!5m2!1sen!2sin"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d297.859866182962!2d78.53218295734656!3d25.456223070492413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39777100748511c1%3A0xdd4cb4bbfdb443cf!2sj%20p%20Interio!5e1!3m2!1sen!2sin!4v1779802252806!5m2!1sen!2sin"
               width="100%"
               height="450"
               style={{ border: 0 }}

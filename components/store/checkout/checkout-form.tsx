@@ -11,12 +11,14 @@ import { formatPrice } from "@/utils/format";
 import { Loader2, CheckCircle2, MapPin, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { PhoneInput } from "@/components/ui/phone-input";
 import Script from "next/script";
 import { checkoutFormSchema, type CheckoutFormData } from "@/lib/zod-schema";
 import { z } from "zod";
 import { validateCoupon } from "@/actions/admin/coupon.actions";
+import { calculateTaxBreakdown } from "@/utils/order-helpers";
 import { initiateOrder } from "@/actions/payment/initiate-order";
 import { confirmOrder } from "@/actions/payment/confirm-order";
 import { DeletePendingOrder } from "@/actions/payment/delete-pending-order";
@@ -51,6 +53,8 @@ interface CheckoutFormProps {
   initialShippingConfig: {
     shippingCharge: number | null;
     freeShippingMinOrder: number | null;
+    cgstRate: number;
+    sgstRate: number;
   } | null;
 }
 
@@ -98,6 +102,23 @@ export function CheckoutForm({
         : "new";
   });
 
+  const [useSameBillingAddress, setUseSameBillingAddress] = useState(true);
+  const [billingErrors, setBillingErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
+  const [billingFormData, setBillingFormData] = useState<CheckoutFormData>({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: userEmail || "",
+    address: "",
+    apartment: "",
+    country: "India",
+    state: "",
+    city: "",
+    pinCode: "",
+    coupon: "",
+    gstNumber: "",
+  });
+
   // Form state - Initialize with default/first address if available
   const [formData, setFormData] = useState<CheckoutFormData>(() => {
     const defaultAddress = savedAddresses.find((addr) => addr.isDefault) || savedAddresses[0];
@@ -115,6 +136,7 @@ export function CheckoutForm({
         city: defaultAddress.city,
         pinCode: defaultAddress.pinCode,
         coupon: "",
+        gstNumber: "",
       };
     }
 
@@ -130,6 +152,7 @@ export function CheckoutForm({
       city: "",
       pinCode: "",
       coupon: "",
+      gstNumber: "",
     };
   });
 
@@ -170,6 +193,7 @@ export function CheckoutForm({
         city: "",
         pinCode: "",
         coupon: prev.coupon, // Keep coupon
+        gstNumber: prev.gstNumber,
       }));
     } else {
       // Pre-fill form with selected address
@@ -200,11 +224,18 @@ export function CheckoutForm({
     }
   };
 
+  const handleBillingInputChange = (field: keyof CheckoutFormData, value: string) => {
+    setBillingFormData((prev) => ({ ...prev, [field]: value }));
+    if (billingErrors[field]) {
+      setBillingErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
   const validateForm = () => {
+    let isValid = true;
     try {
       checkoutFormSchema.parse(formData);
       setErrors({});
-      return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Partial<Record<keyof CheckoutFormData, string>> = {};
@@ -215,10 +246,33 @@ export function CheckoutForm({
           }
         });
         setErrors(fieldErrors);
-        toast.error("Please fix the errors in the form");
       }
-      return false;
+      isValid = false;
     }
+
+    if (!useSameBillingAddress) {
+      try {
+        checkoutFormSchema.parse(billingFormData);
+        setBillingErrors({});
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const fieldErrors: Partial<Record<keyof CheckoutFormData, string>> = {};
+          error.errors.forEach((err) => {
+            const field = err.path[0] as keyof CheckoutFormData;
+            if (!fieldErrors[field]) {
+              fieldErrors[field] = err.message;
+            }
+          });
+          setBillingErrors(fieldErrors);
+        }
+        isValid = false;
+      }
+    }
+
+    if (!isValid) {
+      toast.error("Please fix the errors in the form");
+    }
+    return isValid;
   };
 
   const handleApplyCoupon = async () => {
@@ -287,6 +341,22 @@ export function CheckoutForm({
         email: formData.email || undefined,
       };
 
+      const billingAddressDetails = {
+        ...(useSameBillingAddress ? addressDetails : {
+          country: billingFormData.country,
+          firstName: billingFormData.firstName,
+          lastName: billingFormData.lastName,
+          address: billingFormData.address,
+          apartment: billingFormData.apartment || undefined,
+          city: billingFormData.city,
+          state: billingFormData.state,
+          pinCode: billingFormData.pinCode,
+          phone: billingFormData.phone,
+          email: billingFormData.email || undefined,
+        }),
+        gstNumber: formData.gstNumber?.trim().toUpperCase() || undefined,
+      };
+
       const orderItems = displayItems.map((item) => ({
         productId: item.productId,
         variantId: item.variantId,
@@ -300,7 +370,7 @@ export function CheckoutForm({
         couponCode: appliedCoupon?.code || undefined,
         items: orderItems,
         shippingAddress: addressDetails,
-        billingAddress: addressDetails,
+        billingAddress: billingAddressDetails,
       };
 
       const res = await initiateOrder(orderData);
@@ -594,6 +664,154 @@ export function CheckoutForm({
                 </div>
               </div>
             </Card>
+
+            {/* Use Same Billing Address Checkbox */}
+            <div className="flex items-center space-x-2 pt-2 pb-2">
+              <Checkbox
+                id="useSameBillingAddress"
+                checked={useSameBillingAddress}
+                onCheckedChange={(checked) => setUseSameBillingAddress(checked as boolean)}
+              />
+              <Label htmlFor="useSameBillingAddress" className="text-sm font-medium leading-none cursor-pointer">
+                Use the same address as billing address
+              </Label>
+            </div>
+
+            {/* GST Number (optional) */}
+            <div className="space-y-2 pb-2">
+              <Label htmlFor="gstNumber">GST Number (optional)</Label>
+              <Input
+                id="gstNumber"
+                placeholder="e.g. 22AAAAA0000A1Z5"
+                value={formData.gstNumber || ""}
+                onChange={(e) => handleInputChange("gstNumber", e.target.value.toUpperCase().trim())}
+                className={errors.gstNumber ? "border-red-500 uppercase" : "uppercase"}
+                maxLength={15}
+              />
+              {errors.gstNumber && <p className="text-xs text-red-500">{errors.gstNumber}</p>}
+            </div>
+
+            {/* Billing Form */}
+            {!useSameBillingAddress && (
+              <Card className="p-4 sm:p-6 space-y-2 min-w-0">
+                <h2 className="text-lg sm:text-xl font-semibold">Billing Address</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Enter your billing information
+                </p>
+
+                {/* Name */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="billingFirstName">First name *</Label>
+                    <Input
+                      id="billingFirstName"
+                      value={billingFormData.firstName}
+                      onChange={(e) => handleBillingInputChange("firstName", e.target.value)}
+                      className={billingErrors.firstName ? "border-red-500" : ""}
+                    />
+                    {billingErrors.firstName && <p className="text-xs text-red-500">{billingErrors.firstName}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="billingLastName">Last name *</Label>
+                    <Input
+                      id="billingLastName"
+                      value={billingFormData.lastName}
+                      onChange={(e) => handleBillingInputChange("lastName", e.target.value)}
+                      className={billingErrors.lastName ? "border-red-500" : ""}
+                    />
+                    {billingErrors.lastName && <p className="text-xs text-red-500">{billingErrors.lastName}</p>}
+                  </div>
+                </div>
+
+                {/* Phone and Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="billingPhone">Phone</Label>
+                    <PhoneInput
+                      id="billingPhone"
+                      value={billingFormData.phone}
+                      defaultCountry="IN"
+                      onChange={(value) => handleBillingInputChange("phone", value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="billingEmail">Email (optional)</Label>
+                    <Input
+                      id="billingEmail"
+                      type="email"
+                      value={billingFormData.email}
+                      onChange={(e) => handleBillingInputChange("email", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Country/Region */}
+                <div className="space-y-2">
+                  <Label htmlFor="billingCountry">Country/Region</Label>
+                  <Input
+                    id="billingCountry"
+                    value={billingFormData.country}
+                    onChange={(e) => handleBillingInputChange("country", e.target.value)}
+                    defaultValue={"India"}
+                    required
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="billingAddress">Address</Label>
+                  <Input
+                    id="billingAddress"
+                    placeholder="House number and street name"
+                    value={billingFormData.address}
+                    onChange={(e) => handleBillingInputChange("address", e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Apartment */}
+                <div className="space-y-2">
+                  <Label htmlFor="billingApartment">Apartment, suite, etc. (optional)</Label>
+                  <Input
+                    id="billingApartment"
+                    value={billingFormData.apartment}
+                    onChange={(e) => handleBillingInputChange("apartment", e.target.value)}
+                  />
+                </div>
+
+                {/* City, State, PIN */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="billingCity">City</Label>
+                    <Input
+                      id="billingCity"
+                      value={billingFormData.city}
+                      onChange={(e) => handleBillingInputChange("city", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="billingState">State</Label>
+                    <Input
+                      id="billingState"
+                      value={billingFormData.state}
+                      onChange={(e) => handleBillingInputChange("state", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="billingPinCode">PIN code</Label>
+                    <Input
+                      id="billingPinCode"
+                      value={billingFormData.pinCode}
+                      onChange={(e) => handleBillingInputChange("pinCode", e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
 
           {/* Right Column - Order Summary */}
@@ -711,6 +929,36 @@ export function CheckoutForm({
                   </div>
                 )}
 
+                {(() => {
+                  const sub = isInitialized
+                    ? getSubtotal()
+                    : displayItems.reduce((acc, i) => acc + i.price * i.quantity, 0);
+                  const disc = appliedCoupon?.discount || 0;
+                  const cgstRate = initialShippingConfig?.cgstRate ?? 9;
+                  const sgstRate = initialShippingConfig?.sgstRate ?? 9;
+                  const { taxableAmount, cgstAmount, sgstAmount, taxAmount } = calculateTaxBreakdown(sub, disc, cgstRate, sgstRate);
+                  
+                  if (taxAmount > 0) {
+                    return (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Taxable Amount</span>
+                          <span className="font-medium">{formatPrice(taxableAmount)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">CGST ({cgstRate}%)</span>
+                          <span className="font-medium">{formatPrice(cgstAmount)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">SGST ({sgstRate}%)</span>
+                          <span className="font-medium">{formatPrice(sgstAmount)}</span>
+                        </div>
+                      </>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping Fee</span>
                   <span className="font-medium">
@@ -750,7 +998,11 @@ export function CheckoutForm({
                             ? initialShippingConfig.shippingCharge
                             : 0
                           : 0;
-                      return formatPrice(sub - (appliedCoupon?.discount || 0) + ship);
+                      const disc = appliedCoupon?.discount || 0;
+                      const cgstRate = initialShippingConfig?.cgstRate ?? 9;
+                      const sgstRate = initialShippingConfig?.sgstRate ?? 9;
+                      const { taxAmount } = calculateTaxBreakdown(sub, disc, cgstRate, sgstRate);
+                      return formatPrice(sub - disc + taxAmount + ship);
                     })()}
                   </span>
                 </div>

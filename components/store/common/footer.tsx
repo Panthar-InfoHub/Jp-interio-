@@ -1,38 +1,47 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Youtube, Linkedin } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { siteConfig } from "@/site.config";
+import { prisma } from "@/prisma/db";
 
-export function Footer() {
+export async function Footer() {
+  const topCategories = await prisma.category.findMany({
+    where: { isActive: true },
+    select: { name: true, slug: true },
+    orderBy: { products: { _count: "desc" } },
+    take: 5,
+  });
+
   return (
-    <footer className="bg-cyan-600 text-white border-t border-border">
-      <div className=" container py-10 mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* About */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-44 h-15 relative overflow-hidden rounded-lg">
-                <Image
-                  src={siteConfig.logo.path}
-                  alt={siteConfig.logo.alt}
-                  fill
-                  className="object-contain "
-                />
-              </div>
-              {/* <h3 className="text-lg font-semibold text-primary">{siteConfig.name}</h3> */}
-            </div>
-            <p className="text-sm text-foreground-muted mb-4 line-clamp-3">{siteConfig.description}</p>
-            <div className="flex gap-3 flex-wrap">
-              {siteConfig.social.facebook && (
+    <footer
+      className="relative text-[#2d2d2d] border-t border-gray-200"
+      style={{
+        backgroundImage: "url('/image/footer-bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "right bottom",
+      }}
+    >
+      {/* Overlay to ensure text readability if needed, or just let the natural background show */}
+      <div className="absolute inset-0 bg-white/20 pointer-events-none"></div>
+
+      <div className="w-full py-16 px-6 md:px-12 lg:px-20 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-12">
+          {/* Brand Column (Left) */}
+          <div className="lg:col-span-3">
+            <h2 className="text-xl md:text-2xl font-bold italic text-[#1b2b22] mb-4">
+              {siteConfig.name}
+            </h2>
+            <p className="text-[#3b4c40] text-sm leading-relaxed max-w-[260px] mb-6">
+              {siteConfig.description}
+            </p>
+            <div className="flex gap-4">
+              {siteConfig.social.facebook !== undefined && (
                 <Link
-                  href={siteConfig.social.facebook}
+                  href={siteConfig.social.facebook || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:text-primary hover:bg-white transition-colors"
+                  className="text-white hover:text-gray-200 transition-colors"
                 >
-                  <Facebook className="h-4 w-4" />
+                  <Facebook className="h-5 w-5" />
                 </Link>
               )}
               {siteConfig.social.instagram && (
@@ -40,19 +49,19 @@ export function Footer() {
                   href={siteConfig.social.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:text-primary hover:bg-white transition-colors"
+                  className="text-white hover:text-gray-200 transition-colors"
                 >
-                  <Instagram className="h-4 w-4" />
+                  <Instagram className="h-5 w-5" />
                 </Link>
               )}
-              {siteConfig.social.twitter && (
+              {siteConfig.social.twitter !== undefined && (
                 <Link
-                  href={siteConfig.social.twitter}
+                  href={siteConfig.social.twitter || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:text-primary hover:bg-white transition-colors"
+                  className="text-white hover:text-gray-200 transition-colors"
                 >
-                  <Twitter className="h-4 w-4" />
+                  <Twitter className="h-5 w-5" />
                 </Link>
               )}
               {siteConfig.social.youtube && (
@@ -60,79 +69,43 @@ export function Footer() {
                   href={siteConfig.social.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:text-primary hover:bg-white transition-colors"
+                  className="text-white hover:text-gray-200 transition-colors"
                 >
-                  <Youtube className="h-4 w-4" />
+                  <Youtube className="h-5 w-5" />
                 </Link>
               )}
-              {siteConfig.social.linkedin && (
-                <Link
-                  href={siteConfig.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:text-primary hover:bg-white transition-colors"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </Link>
-              )}
-                <Link
-                  href={"https://maps.app.goo.gl/mz7YMZErej9u4CXS6?g_st=ic"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center hover:text-primary hover:bg-white transition-colors"
-                >
-                  <MapPin className="h-4 w-4" />
-                </Link>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/account"
-                  className="text-sm "
-                >
-                  My Account
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="text-sm "
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm "
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/products"
-                  className="text-sm "
-                >
-                  All Products
-                </Link>
-              </li>
+          {/* Shop Column (Middle) */}
+          <div className="lg:col-span-2">
+            <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-[#1b2b22] mb-6">
+              SHOP
+            </h3>
+            <ul className="space-y-3">
+              {topCategories.map((category) => (
+                <li key={category.slug}>
+                  <Link
+                    href={`/categories/${category.slug}`}
+                    className="text-[#3b4c40] text-sm hover:text-[#1b2b22] transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
-            <ul className="space-y-2">
+          {/* Customer Service Column (Middle-Right) */}
+          <div className="lg:col-span-3">
+            <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-[#1b2b22] mb-6">
+              CUSTOMER SERVICE
+            </h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="/shipping"
-                  className="text-sm"
+                  className="text-[#3b4c40] text-sm hover:text-[#1b2b22] transition-colors"
                 >
                   Shipping Policy
                 </Link>
@@ -140,74 +113,38 @@ export function Footer() {
               <li>
                 <Link
                   href="/returns"
-                  className="text-sm"
+                  className="text-[#3b4c40] text-sm hover:text-[#1b2b22] transition-colors"
                 >
-                  Returns & Refunds
+                  Return and Refund Policy
                 </Link>
               </li>
               <li>
                 <Link
                   href="/terms-and-conditions"
-                  className="text-sm"
+                  className="text-[#3b4c40] text-sm hover:text-[#1b2b22] transition-colors"
                 >
-                  Terms & Conditions
+                  Terms and Conditions
                 </Link>
               </li>
               <li>
                 <Link
                   href="/privacy-policy"
-                  className="text-sm"
+                  className="text-[#3b4c40] text-sm hover:text-[#1b2b22] transition-colors"
                 >
                   Privacy Policy
                 </Link>
               </li>
             </ul>
           </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm text-foreground-muted">
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>{siteConfig.contact.address}</span>
-              </li>
-              <li className="flex items-start gap-2 text-sm text-foreground-muted">
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>{siteConfig.contact.secondAddress}</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm text-foreground-muted">
-                <Phone className="h-4 w-4 shrink-0" />
-                <a
-                  href={`tel:${siteConfig.contact.phone}`}
-                  className=""
-                >
-                  {siteConfig.contact.phone}
-                </a>,
-                <a
-                  href={`tel:${siteConfig.contact.alternatePhone}`}
-                  className=""
-                >
-                  {siteConfig.contact.alternatePhone}
-                </a>
-              </li>
-              <li className="flex items-center gap-2 text-sm text-foreground-muted">
-                <Mail className="h-4 w-4 shrink-0" />
-                <a
-                  href={`mailto:${siteConfig.contact.email}`}
-                  className=""
-                >
-                  {siteConfig.contact.email}
-                </a>
-              </li>
-            </ul>
-          </div>
+          
+          {/* Empty Space for the Vases (Far Right) */}
+          <div className="hidden lg:block lg:col-span-4 pointer-events-none"></div>
         </div>
-        {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-border text-center text-sm text-foreground-muted">
-          <p>
-            &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
-          </p>
+
+        {/* Bottom Bar */}
+        <div className="mt-16 pt-6 border-t border-[#d4cfc5]/50 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-[#3b4c40]">
+          <p>Sustainably Sourced &copy; {siteConfig.name}</p>
+          <p>Design & Developed by PantharInfohub</p>
         </div>
       </div>
     </footer>

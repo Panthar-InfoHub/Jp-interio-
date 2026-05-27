@@ -8,6 +8,7 @@ import { ProductPagination } from "@/components/store/products/product-paginatio
 import { Suspense } from "react";
 import { ProductCardSkeleton } from "@/components/store/products/product-list-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FeaturedProducts } from "@/components/store/home/featured-products";
 
 export const experimental_ppr = true;
 
@@ -354,6 +355,31 @@ export default async function ProductsPage({
             <ProductsGrid params={params} />
           </Suspense>
         </div>
+      </div>
+
+      {/* Bestseller Grid Section */}
+      <div className="mt-16 border-t border-gray-100 pt-8 lg:pt-12">
+        <Suspense
+          fallback={
+            <section className="py-12 md:py-20 bg-gray-50">
+              <div className="container mx-auto px-6">
+                <Skeleton className="h-4 w-24 mb-3" />
+                <Skeleton className="h-10 w-64 mb-12" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="space-y-4">
+                      <Skeleton className="aspect-square w-full rounded-xl" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          }
+        >
+          <FeaturedProducts title="PRODUCTS ON SALE" filter="sale" />
+        </Suspense>
       </div>
     </div>
   );

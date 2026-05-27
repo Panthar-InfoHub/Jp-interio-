@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { siteConfig } from "@/site.config";
 import "lenis/dist/lenis.css";
+import "./(store)/styless.css";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -30,8 +31,8 @@ export const metadata = {
     "Raspberry Pi",
     "DIY Kits",
   ],
-  authors: [{ name: "Vyomtics" }],
-  creator: "Vyomtics",
+  authors: [{ name: "JP Interio" }],
+  creator: "JP Interio",
   robots: {
     index: true,
     follow: true,

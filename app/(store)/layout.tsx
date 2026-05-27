@@ -3,7 +3,6 @@ import { Footer } from "@/components/store/common/footer";
 import { Header } from "@/components/store/common/header";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { StoreSync } from "@/components/store/common/store-sync";
-import "./styless.css";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   return (

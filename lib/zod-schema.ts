@@ -117,6 +117,7 @@ export const addressSchema = z.object({
   state: z.string().min(2, "State is required"),
   pinCode: z.string().min(5, "Valid PIN code is required"),
   country: z.string().default("India"),
+  gstNumber: z.string().optional(),
 });
 
 export const orderItemSchema = z.object({
@@ -150,6 +151,7 @@ export const checkoutFormSchema = z.object({
   city: z.string().min(2, "City is required").max(50),
   pinCode: z.string().regex(/^\d{5,6}$/, "PIN code must be 5-6 digits"),
   coupon: z.string().optional(),
+  gstNumber: z.string().regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/, "Invalid GST Number").optional().or(z.literal("")),
 });
 
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;

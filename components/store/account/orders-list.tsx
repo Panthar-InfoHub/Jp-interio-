@@ -209,27 +209,59 @@ export function OrdersList() {
                             </div>
                           </div>
 
-                          <div>
-                            <h4 className="font-semibold mb-3">Shipping Address</h4>
-                            <div className="p-4 bg-surface rounded-lg text-sm">
-                              <p className="font-medium">
-                                {selectedOrder.shippingAddress?.firstName}{" "}
-                                {selectedOrder.shippingAddress?.lastName}
-                              </p>
-                              <p className="text-muted-foreground mt-1">
-                                {selectedOrder.shippingAddress?.address}
-                                {selectedOrder.shippingAddress?.apartment && (
-                                  <>, {selectedOrder.shippingAddress.apartment}</>
-                                )}
-                                <br />
-                                {selectedOrder.shippingAddress?.city},{" "}
-                                {selectedOrder.shippingAddress?.state}{" "}
-                                {selectedOrder.shippingAddress?.pinCode}
-                                <br />
-                                {selectedOrder.shippingAddress?.country}
-                                <br />
-                                Phone: {selectedOrder.shippingAddress?.phone}
-                              </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <h4 className="font-semibold mb-3">Shipping Address</h4>
+                              <div className="p-4 bg-surface rounded-lg text-sm h-full">
+                                <p className="font-medium">
+                                  {selectedOrder.shippingAddress?.firstName}{" "}
+                                  {selectedOrder.shippingAddress?.lastName}
+                                </p>
+                                <p className="text-muted-foreground mt-1">
+                                  {selectedOrder.shippingAddress?.address}
+                                  {selectedOrder.shippingAddress?.apartment && (
+                                    <>, {selectedOrder.shippingAddress.apartment}</>
+                                  )}
+                                  <br />
+                                  {selectedOrder.shippingAddress?.city},{" "}
+                                  {selectedOrder.shippingAddress?.state}{" "}
+                                  {selectedOrder.shippingAddress?.pinCode}
+                                  <br />
+                                  {selectedOrder.shippingAddress?.country}
+                                  <br />
+                                  Phone: {selectedOrder.shippingAddress?.phone}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">Billing Address</h4>
+                              <div className="p-4 bg-surface rounded-lg text-sm h-full">
+                                <p className="font-medium">
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.firstName}{" "}
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.lastName}
+                                </p>
+                                <p className="text-muted-foreground mt-1">
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.address}
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.apartment && (
+                                    <>, {(selectedOrder.billingAddress || selectedOrder.shippingAddress).apartment}</>
+                                  )}
+                                  <br />
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.city},{" "}
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.state}{" "}
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.pinCode}
+                                  <br />
+                                  {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.country}
+                                  <br />
+                                  Phone: {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.phone}
+                                  {selectedOrder.billingAddress?.gstNumber && (
+                                    <>
+                                      <br />
+                                      <span className="font-medium text-foreground mt-1 inline-block">GST: {selectedOrder.billingAddress.gstNumber}</span>
+                                    </>
+                                  )}
+                                </p>
+                              </div>
                             </div>
                           </div>
 
@@ -245,6 +277,22 @@ export function OrdersList() {
                                   <span>Discount</span>
                                   <span>-{formatPrice(selectedOrder.discount)}</span>
                                 </div>
+                              )}
+                              {selectedOrder.taxAmount > 0 && (
+                                <>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Taxable Amount</span>
+                                    <span>{formatPrice(selectedOrder.taxableAmount)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">CGST</span>
+                                    <span>{formatPrice(selectedOrder.cgstAmount)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">SGST</span>
+                                    <span>{formatPrice(selectedOrder.sgstAmount)}</span>
+                                  </div>
+                                </>
                               )}
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Shipping</span>

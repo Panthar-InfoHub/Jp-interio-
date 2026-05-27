@@ -137,3 +137,23 @@ export async function updateCouponUsage(
     }),
   ]);
 }
+
+/**
+ * Calculates GST breakdown based on configurable CGST/SGST rates.
+ * @param subtotal  - sum of item prices
+ * @param discount  - coupon discount applied
+ * @param cgstRate  - CGST percentage (e.g., 9 for 9%)
+ * @param sgstRate  - SGST percentage (e.g., 9 for 9%)
+ */
+export function calculateTaxBreakdown(
+  subtotal: number,
+  discount: number,
+  cgstRate: number = 9,
+  sgstRate: number = 9
+) {
+  const taxableAmount = Math.max(subtotal - discount, 0);
+  const cgstAmount = Math.round(taxableAmount * (cgstRate / 100) * 100) / 100;
+  const sgstAmount = Math.round(taxableAmount * (sgstRate / 100) * 100) / 100;
+  const taxAmount = Math.round((cgstAmount + sgstAmount) * 100) / 100;
+  return { taxableAmount, cgstAmount, sgstAmount, taxAmount };
+}

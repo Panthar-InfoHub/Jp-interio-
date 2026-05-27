@@ -17,6 +17,7 @@ export async function getSiteConfig() {
           freeShippingMinOrder: 500,
           showAnnouncementBar: true,
           announcementText: "Free shipping on orders above ₹500!",
+          invoicePrefix: "INV",
         },
       });
     }
@@ -34,6 +35,16 @@ export async function updateSiteConfig(data: {
   freeShippingMinOrder?: number | null;
   showAnnouncementBar?: boolean;
   announcementText?: string;
+  cgstRate?: number;
+  sgstRate?: number;
+  businessName?: string | null;
+  businessAddress?: string | null;
+  businessGstin?: string | null;
+  businessPan?: string | null;
+  businessCin?: string | null;
+  businessPhone?: string | null;
+  businessEmail?: string | null;
+  invoicePrefix?: string | null;
 }) {
   await requireAdmin();
 
@@ -48,6 +59,7 @@ export async function updateSiteConfig(data: {
           freeShippingMinOrder: data.freeShippingMinOrder ?? 500,
           showAnnouncementBar: data.showAnnouncementBar ?? true,
           announcementText: data.announcementText ?? "Free shipping on orders above ₹500!",
+          invoicePrefix: data.invoicePrefix ?? "INV",
         },
       });
     } else {
@@ -62,6 +74,16 @@ export async function updateSiteConfig(data: {
             showAnnouncementBar: data.showAnnouncementBar,
           }),
           ...(data.announcementText !== undefined && { announcementText: data.announcementText }),
+          ...(data.cgstRate !== undefined && { cgstRate: data.cgstRate }),
+          ...(data.sgstRate !== undefined && { sgstRate: data.sgstRate }),
+          ...(data.businessName !== undefined && { businessName: data.businessName }),
+          ...(data.businessAddress !== undefined && { businessAddress: data.businessAddress }),
+          ...(data.businessGstin !== undefined && { businessGstin: data.businessGstin }),
+          ...(data.businessPan !== undefined && { businessPan: data.businessPan }),
+          ...(data.businessCin !== undefined && { businessCin: data.businessCin }),
+          ...(data.businessPhone !== undefined && { businessPhone: data.businessPhone }),
+          ...(data.businessEmail !== undefined && { businessEmail: data.businessEmail }),
+          ...(data.invoicePrefix !== undefined && { invoicePrefix: data.invoicePrefix }),
         },
       });
     }
@@ -69,6 +91,8 @@ export async function updateSiteConfig(data: {
     // ✅ Clear cache when site config is updated
     revalidatePath("/", "layout"); // Revalidate all pages
     revalidatePath("/checkout"); // Revalidate checkout (shipping)
+    revalidatePath("/admin/settings");
+    revalidatePath("/admin/orders");
 
     return { success: true, data: config };
   } catch (error) {

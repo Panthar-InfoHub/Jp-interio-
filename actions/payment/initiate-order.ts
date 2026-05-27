@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { prisma } from "@/prisma/db";
 import Razorpay from "razorpay";
 import { OrderDetails, orderDetailsSchema } from "@/lib/zod-schema";
+import { calculateTaxBreakdown } from "@/utils/order-helpers";
 
 export async function initiateOrder(orderDetails: OrderDetails) {
   // Start session fetch immediately
@@ -103,7 +104,17 @@ export async function initiateOrder(orderDetails: OrderDetails) {
     }
   }
 
-  const total = subtotal - discount + shippingFee;
+  // 4b. Calculate GST
+  const cgstRate = siteConfig?.cgstRate ?? 9;
+  const sgstRate = siteConfig?.sgstRate ?? 9;
+  const { taxableAmount, cgstAmount, sgstAmount, taxAmount } = calculateTaxBreakdown(
+    subtotal,
+    discount,
+    cgstRate,
+    sgstRate
+  );
+
+  const total = taxableAmount + taxAmount + shippingFee;
 
   // 5. Create Razorpay Order
   const razorpay = new Razorpay({
@@ -128,6 +139,10 @@ export async function initiateOrder(orderDetails: OrderDetails) {
       couponCode: validated.couponCode || null,
       subtotal,
       discount,
+      taxableAmount,
+      cgstAmount,
+      sgstAmount,
+      taxAmount,
       shippingFee,
       total,
       shippingAddress: validated.shippingAddress as any,

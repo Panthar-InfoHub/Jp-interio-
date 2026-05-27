@@ -334,28 +334,59 @@ export function ModernOrdersList() {
                   </div>
                 </div>
 
-                {/* Shipping Address */}
-                <div>
-                  <h4 className="font-semibold mb-4">Shipping Address</h4>
-                  <div className="p-4 bg-gray-50 rounded-lg space-y-1 text-sm">
-                    <p className="font-medium text-base">
-                      {selectedOrder.shippingAddress?.firstName}{" "}
-                      {selectedOrder.shippingAddress?.lastName}
-                    </p>
-                    <p className="text-gray-600">
-                      {selectedOrder.shippingAddress?.address}
-                      {selectedOrder.shippingAddress?.apartment && (
-                        <>, {selectedOrder.shippingAddress.apartment}</>
+                {/* Addresses */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold mb-4">Shipping Address</h4>
+                    <div className="p-4 bg-gray-50 rounded-lg space-y-1 text-sm h-full">
+                      <p className="font-medium text-base">
+                        {selectedOrder.shippingAddress?.firstName}{" "}
+                        {selectedOrder.shippingAddress?.lastName}
+                      </p>
+                      <p className="text-gray-600">
+                        {selectedOrder.shippingAddress?.address}
+                        {selectedOrder.shippingAddress?.apartment && (
+                          <>, {selectedOrder.shippingAddress.apartment}</>
+                        )}
+                      </p>
+                      <p className="text-gray-600">
+                        {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}{" "}
+                        {selectedOrder.shippingAddress?.pinCode}
+                      </p>
+                      <p className="text-gray-600">{selectedOrder.shippingAddress?.country}</p>
+                      <p className="text-gray-600 font-medium pt-2">
+                        Phone: {selectedOrder.shippingAddress?.phone}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-4">Billing Address</h4>
+                    <div className="p-4 bg-gray-50 rounded-lg space-y-1 text-sm h-full">
+                      <p className="font-medium text-base">
+                        {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.firstName}{" "}
+                        {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.lastName}
+                      </p>
+                      <p className="text-gray-600">
+                        {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.address}
+                        {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.apartment && (
+                          <>, {(selectedOrder.billingAddress || selectedOrder.shippingAddress).apartment}</>
+                        )}
+                      </p>
+                      <p className="text-gray-600">
+                        {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.city}, {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.state}{" "}
+                        {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.pinCode}
+                      </p>
+                      <p className="text-gray-600">{(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.country}</p>
+                      <p className="text-gray-600 font-medium pt-2">
+                        Phone: {(selectedOrder.billingAddress || selectedOrder.shippingAddress)?.phone}
+                      </p>
+                      {selectedOrder.billingAddress?.gstNumber && (
+                        <p className="text-gray-600 font-medium pt-1">
+                          GST: {selectedOrder.billingAddress.gstNumber}
+                        </p>
                       )}
-                    </p>
-                    <p className="text-gray-600">
-                      {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state}{" "}
-                      {selectedOrder.shippingAddress?.pinCode}
-                    </p>
-                    <p className="text-gray-600">{selectedOrder.shippingAddress?.country}</p>
-                    <p className="text-gray-600 font-medium pt-2">
-                      Phone: {selectedOrder.shippingAddress?.phone}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
@@ -372,6 +403,22 @@ export function ModernOrdersList() {
                         <span>Discount</span>
                         <span className="font-medium">-{formatPrice(selectedOrder.discount)}</span>
                       </div>
+                    )}
+                    {selectedOrder.taxAmount > 0 && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Taxable Amount</span>
+                          <span className="font-medium">{formatPrice(selectedOrder.taxableAmount)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">CGST</span>
+                          <span className="font-medium">{formatPrice(selectedOrder.cgstAmount)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">SGST</span>
+                          <span className="font-medium">{formatPrice(selectedOrder.sgstAmount)}</span>
+                        </div>
+                      </>
                     )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Shipping</span>

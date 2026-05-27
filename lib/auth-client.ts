@@ -7,4 +7,5 @@ export const authClient = createAuthClient({
   plugins: [inferAdditionalFields<typeof auth>()],
 });
 
+// @ts-ignore - forgetPassword and resetPassword are provided by emailAndPassword provider but type inference might fail
 export const { signIn, signUp, useSession, signOut, forgetPassword, resetPassword } = authClient;

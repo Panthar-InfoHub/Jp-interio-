@@ -52,7 +52,7 @@ export async function TopProducts() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{product.title}</p>
-                    <p className="text-sm text-muted-foreground">{product.category.name}</p>
+                    <p className="text-sm text-muted-foreground">{product.category?.name}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold">{formatPrice(price)}</p>

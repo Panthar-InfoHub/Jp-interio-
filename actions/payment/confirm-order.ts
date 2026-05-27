@@ -8,6 +8,7 @@ import {
   updateCouponUsage,
 } from "@/utils/order-helpers";
 import { sendOrderConfirmationToUser, sendOrderNotificationToAdmin } from "@/lib/send-mail";
+import { getSiteConfig } from "@/actions/admin/site-config.actions";
 
 export async function confirmOrder({
   orderId,
@@ -163,7 +164,67 @@ async function sendEmailsInBackground(order: any) {
 
     const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
 
+    const configResult = await getSiteConfig();
+    const siteConfig = configResult.success ? configResult.data : null;
+
     // Format order details for email
+    const orderDateFormatted = new Date(order.createdAt).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+    
+    // Prefix + date + sequence
+    const dateStr = new Date(order.createdAt).toISOString().split('T')[0].replace(/-/g, '');
+    const sequenceMatch = order.orderNumber.match(/\d{3}$/);
+    const sequence = sequenceMatch ? sequenceMatch[0] : "001";
+    const invoiceNumber = `${siteConfig?.invoicePrefix || "INV"}${dateStr}${sequence}`;
+
+    const subtotal = order.subtotal || 0;
+    const discount = order.discount || 0;
+    
+    // Split discount among items proportionally based on their contribution to subtotal
+    let remainingDiscount = discount;
+
+    const items = order.items.map((item: any, index: number) => {
+      const price = item.variantDetails?.sellingPrice || item.variantDetails?.price || 0;
+      const grossAmount = price * item.quantity;
+      
+      // Calculate this item's share of the discount
+      let itemDiscountAmount = 0;
+      if (discount > 0 && subtotal > 0) {
+        if (index === order.items.length - 1) {
+          // Last item takes whatever discount is left to avoid rounding errors
+          itemDiscountAmount = remainingDiscount;
+        } else {
+          itemDiscountAmount = (grossAmount / subtotal) * discount;
+          remainingDiscount -= itemDiscountAmount;
+        }
+      }
+
+      const taxableAmount = grossAmount - itemDiscountAmount;
+      const cgstRate = siteConfig?.cgstRate ?? 9;
+      const sgstRate = siteConfig?.sgstRate ?? 9;
+      
+      const cgstAmount = (taxableAmount * cgstRate) / 100;
+      const sgstAmount = (taxableAmount * sgstRate) / 100;
+      const totalAmount = taxableAmount + cgstAmount + sgstAmount;
+
+      return {
+        name: item.name,
+        quantity: item.quantity,
+        price: price,
+        mrp: item.variantDetails?.mrp || price,
+        variantName: item.variantDetails?.variantName || "",
+        sku: item.variantDetails?.sku || null,
+        discountAmount: itemDiscountAmount,
+        taxableAmount,
+        cgstAmount,
+        sgstAmount,
+        totalAmount,
+      };
+    });
+
     const orderDetails = {
       orderId: order.orderNumber,
       customerName:
@@ -172,12 +233,11 @@ async function sendEmailsInBackground(order: any) {
           .join(" ") || "",
       customerEmail: order.shippingAddress?.email || "",
       customerPhone: order.shippingAddress?.phone || "",
-      items: order.items.map((item: any) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.variantDetails?.price || 0,
-      })),
+      items,
       totalAmount: order.total,
+      subtotal,
+      discount,
+      taxAmount: order.taxAmount || 0,
       shippingAddress: [
         order.shippingAddress?.firstName && order.shippingAddress?.lastName
           ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`
@@ -190,11 +250,50 @@ async function sendEmailsInBackground(order: any) {
       ]
         .filter(Boolean)
         .join(", "),
+      billingAddress: order.billingAddress ? [
+        order.billingAddress.firstName && order.billingAddress.lastName
+          ? `${order.billingAddress.firstName} ${order.billingAddress.lastName}`
+          : null,
+        order.billingAddress.address,
+        order.billingAddress.city,
+        order.billingAddress.state,
+        order.billingAddress.pinCode,
+        order.billingAddress.country,
+      ]
+        .filter(Boolean)
+        .join(", ") : undefined,
+      gstNumber: order.billingAddress?.gstNumber,
       paymentMethod: order.paymentMethod || "RAZORPAY",
-      orderDate: new Date(order.createdAt).toLocaleString("en-IN", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }),
+      orderDate: orderDateFormatted,
+      invoiceNumber,
+      invoiceDate: orderDateFormatted,
+      businessName: siteConfig?.businessName || null,
+      businessAddress: siteConfig?.businessAddress || null,
+      businessGstin: siteConfig?.businessGstin || null,
+      businessPan: siteConfig?.businessPan || null,
+      businessCin: siteConfig?.businessCin || null,
+      businessPhone: siteConfig?.businessPhone || null,
+      businessEmail: siteConfig?.businessEmail || null,
+      cgstRate: siteConfig?.cgstRate ?? 9,
+      sgstRate: siteConfig?.sgstRate ?? 9,
+      shippingAddressObj: {
+        name: [order.shippingAddress?.firstName, order.shippingAddress?.lastName].filter(Boolean).join(" "),
+        address: order.shippingAddress?.address || "",
+        city: order.shippingAddress?.city || "",
+        state: order.shippingAddress?.state || "",
+        pinCode: order.shippingAddress?.pinCode || "",
+        country: order.shippingAddress?.country || "India",
+        phone: order.shippingAddress?.phone || "",
+      },
+      billingAddressObj: order.billingAddress ? {
+        name: [order.billingAddress.firstName, order.billingAddress.lastName].filter(Boolean).join(" "),
+        address: order.billingAddress.address || "",
+        city: order.billingAddress.city || "",
+        state: order.billingAddress.state || "",
+        pinCode: order.billingAddress.pinCode || "",
+        country: order.billingAddress.country || "India",
+        phone: order.billingAddress.phone || "",
+      } : undefined,
     };
 
     // Log formatted order details to identify missing fields
@@ -218,14 +317,7 @@ async function sendEmailsInBackground(order: any) {
     // Send both emails in parallel
     await Promise.all([
       // Send to customer
-      sendOrderConfirmationToUser({
-        orderId: orderDetails.orderId,
-        customerName: orderDetails.customerName,
-        customerEmail: orderDetails.customerEmail,
-        items: orderDetails.items,
-        totalAmount: orderDetails.totalAmount,
-        shippingAddress: orderDetails.shippingAddress,
-      }),
+      sendOrderConfirmationToUser(orderDetails as any),
       // Send to all admins
       ...adminEmails.map((email) => sendOrderNotificationToAdmin(email.trim(), orderDetails)),
     ]);
