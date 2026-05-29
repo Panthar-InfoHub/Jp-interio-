@@ -10,6 +10,7 @@ export const orderPlacedUser = (orderDetails: {
     mrp: number;
     variantName: string;
     sku: string | null;
+    hsnCode: string | null;
     discountAmount: number;
     taxableAmount: number;
     cgstAmount: number;
@@ -53,12 +54,16 @@ export const orderPlacedUser = (orderDetails: {
     country: string;
     phone: string;
   };
+  invoiceUrl?: string | null;
 }) => {
   const itemsList = orderDetails.items
     .map(
       (item) => `
       <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; color: #374151;">${item.name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; color: #374151;">
+          ${item.name}
+          ${item.hsnCode ? `<br><span style="font-size: 10px; font-weight: normal; color: #6b7280;">HSN: ${item.hsnCode}</span>` : ''}
+        </td>
         <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; font-weight: bold; color: #111827;">
           ${item.variantName || item.name}<br>
           ${item.sku ? `<span style="font-size: 10px; font-weight: normal; color: #6b7280;">SKU: ${item.sku}</span>` : ''}
@@ -99,6 +104,7 @@ ${orderDetails.billingAddressObj?.name || orderDetails.customerName || ""}
 ${orderDetails.billingAddressObj?.address || ""}
 ${orderDetails.billingAddressObj?.city || ""}, ${orderDetails.billingAddressObj?.state || ""} ${orderDetails.billingAddressObj?.pinCode || ""}
 Phone: ${orderDetails.billingAddressObj?.phone || ""}
+${orderDetails.gstNumber ? `GSTIN: ${orderDetails.gstNumber}` : ""}
 
 Ship To:
 ${orderDetails.shippingAddressObj.name}
@@ -107,13 +113,13 @@ ${orderDetails.shippingAddressObj.city}, ${orderDetails.shippingAddressObj.state
 Phone: ${orderDetails.shippingAddressObj.phone}
 
 Items:
-${orderDetails.items.map((item) => `- ${item.name} (${item.variantName}) x ${item.quantity} = ₹${item.totalAmount.toFixed(2)} (Taxable: ₹${item.taxableAmount.toFixed(2)}, CGST: ₹${item.cgstAmount.toFixed(2)}, SGST: ₹${item.sgstAmount.toFixed(2)})`).join("\n")}
+${orderDetails.items.map((item) => `- ${item.name} (${item.variantName}) ${item.hsnCode ? ` HSN: ${item.hsnCode}` : ""} x ${item.quantity} = ₹${item.totalAmount.toFixed(2)} (Taxable: ₹${item.taxableAmount.toFixed(2)}, CGST: ₹${item.cgstAmount.toFixed(2)}, SGST: ₹${item.sgstAmount.toFixed(2)})`).join("\n")}
 
 Subtotal: ₹${orderDetails.subtotal.toFixed(2)}
 Discount: -₹${orderDetails.discount.toFixed(2)}
 Total Tax: ₹${orderDetails.taxAmount.toFixed(2)}
 Grand Total: ₹${orderDetails.totalAmount.toFixed(2)}
-
+${orderDetails.invoiceUrl ? `\nDownload Invoice: ${orderDetails.invoiceUrl}\n` : ''}
 Thank you for shopping with us!`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; background-color: #ffffff; color: #111827; padding: 20px;">
@@ -155,6 +161,7 @@ Thank you for shopping with us!`,
               ${orderDetails.billingAddressObj?.address || ""}<br>
               ${orderDetails.billingAddressObj?.city || ""} ${orderDetails.billingAddressObj?.pinCode || ""} ${orderDetails.billingAddressObj?.state || ""}<br>
               Phone: ${orderDetails.billingAddressObj?.phone || "N/A"}
+              ${orderDetails.gstNumber ? `<br><strong>GSTIN:</strong> ${orderDetails.gstNumber}` : ''}
             </td>
             <td style="vertical-align: top; width: 33%; font-size: 12px; padding-left: 15px;">
               <strong>Ship To</strong><br>
@@ -207,6 +214,17 @@ Thank you for shopping with us!`,
             </td>
           </tr>
         </table>
+        
+        ${orderDetails.invoiceUrl ? `
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${orderDetails.invoiceUrl}" target="_blank" rel="noopener noreferrer"
+             style="background-color: #000000; color: #ffffff; padding: 12px 24px;
+                    text-decoration: none; display: inline-block; font-weight: 500;
+                    font-size: 14px;">
+            Download Invoice PDF
+          </a>
+        </div>
+        ` : ''}
 
         <!-- Footer -->
         <div style="text-align: right; font-size: 14px; color: #374151; margin-top: 20px;">
@@ -226,7 +244,10 @@ export const orderPlacedAdmin = (orderDetails: Parameters<typeof orderPlacedUser
     .map(
       (item) => `
       <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; color: #374151;">${item.name}</td>
+        <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; color: #374151;">
+          ${item.name}
+          ${item.hsnCode ? `<br><span style="font-size: 10px; font-weight: normal; color: #6b7280;">HSN: ${item.hsnCode}</span>` : ''}
+        </td>
         <td style="padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; vertical-align: top; font-weight: bold; color: #111827;">
           ${item.variantName || item.name}<br>
           ${item.sku ? `<span style="font-size: 10px; font-weight: normal; color: #6b7280;">SKU: ${item.sku}</span>` : ''}
@@ -261,9 +282,10 @@ Name: ${orderDetails.customerName || "Not provided"}
 Email: ${orderDetails.customerEmail || "Not provided"}
 Phone: ${orderDetails.customerPhone || "Not provided"}
 Payment Method: ${orderDetails.paymentMethod}
+${orderDetails.gstNumber ? `Customer GSTIN: ${orderDetails.gstNumber}` : ""}
 
 Order Items:
-${orderDetails.items.map((item) => `- ${item.name} (${item.variantName}) x ${item.quantity} = ₹${item.totalAmount.toFixed(2)}`).join("\n")}
+${orderDetails.items.map((item) => `- ${item.name} (${item.variantName}) ${item.hsnCode ? ` HSN: ${item.hsnCode}` : ""} x ${item.quantity} = ₹${item.totalAmount.toFixed(2)}`).join("\n")}
 
 Subtotal: ₹${orderDetails.subtotal.toFixed(2)}
 Discount: -₹${orderDetails.discount.toFixed(2)}
@@ -297,6 +319,7 @@ JP Interio Admin System`,
               ${orderDetails.customerPhone ? `<a href="tel:${orderDetails.customerPhone}" style="color: #2563eb; text-decoration: none;">${orderDetails.customerPhone}</a><br><br>` : '<br>'}
               ${orderDetails.billingAddressObj?.address || ""}<br>
               ${orderDetails.billingAddressObj?.city || ""} ${orderDetails.billingAddressObj?.pinCode || ""} ${orderDetails.billingAddressObj?.state || ""}
+              ${orderDetails.gstNumber ? `<br><strong>GSTIN:</strong> ${orderDetails.gstNumber}` : ''}
             </td>
             <td style="vertical-align: top; width: 33%; font-size: 13px; padding-left: 15px;">
               <h3 style="margin: 0 0 10px 0; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Ship To</h3>
@@ -345,6 +368,17 @@ JP Interio Admin System`,
         <div style="text-align: right; font-size: 16px; font-weight: bold; margin-bottom: 20px;">
           Grand Total: ₹ ${orderDetails.items.reduce((sum, item) => sum + item.totalAmount, 0).toFixed(2)}
         </div>
+        
+        ${orderDetails.invoiceUrl ? `
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${orderDetails.invoiceUrl}" target="_blank" rel="noopener noreferrer"
+             style="background-color: #000000; color: #ffffff; padding: 12px 24px;
+                    text-decoration: none; display: inline-block; font-weight: 500;
+                    font-size: 14px;">
+            Download Invoice PDF
+          </a>
+        </div>
+        ` : ''}
       </div>
     `,
   };

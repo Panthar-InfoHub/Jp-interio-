@@ -26,7 +26,7 @@ export async function initiateOrder(orderDetails: OrderDetails) {
     sessionPromise,
     prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, title: true },
+      select: { id: true, title: true, hsnCode: true },
     }),
     prisma.productVariant.findMany({
       where: { id: { in: variantIds } },
@@ -151,10 +151,12 @@ export async function initiateOrder(orderDetails: OrderDetails) {
       items: {
         create: validated.items.map((item) => {
           const variant = variants.find((v) => v.id === item.variantId)!;
+          const product = products.find((p) => p.id === item.productId)!;
           return {
             productId: item.productId,
             variantId: item.variantId,
             name: item.name,
+            hsnCode: product.hsnCode || null,
             image: item.image,
             variantDetails: {
               variantName: variant.name,

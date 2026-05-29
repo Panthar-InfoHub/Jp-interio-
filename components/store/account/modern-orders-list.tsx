@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Package, Eye, Loader2, Truck, CheckCircle2, Clock, XCircle, Copy } from "lucide-react";
+import { Package, Eye, Loader2, Truck, CheckCircle2, Clock, XCircle, Copy, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice, formatDate } from "@/utils/format";
@@ -218,17 +218,32 @@ export function ModernOrdersList() {
                 </div>
 
                 {/* Actions */}
-                <Button
-                  variant="outline"
-                  className="w-full rounded-full"
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setDialogOpen(true);
-                  }}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Full Details
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-full"
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setDialogOpen(true);
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Full Details
+                  </Button>
+                  
+                  {order.invoiceUrl && order.paymentStatus === "SUCCESS" && (
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-full border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                      asChild
+                    >
+                      <a href={order.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                        <FileDown className="h-4 w-4 mr-2" />
+                        Download Invoice
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -266,6 +281,20 @@ export function ModernOrdersList() {
                     )}
                     {getStatusConfig(selectedOrder.status as OrderStatus).label}
                   </Badge>
+                  
+                  {selectedOrder.invoiceUrl && selectedOrder.paymentStatus === "SUCCESS" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-full border-green-200 text-green-700 hover:bg-green-50"
+                      asChild
+                    >
+                      <a href={selectedOrder.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                        <FileDown className="h-4 w-4 mr-1.5" />
+                        Invoice
+                      </a>
+                    </Button>
+                  )}
                 </div>
 
                 {/* Tracking Info */}

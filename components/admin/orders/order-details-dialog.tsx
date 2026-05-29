@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/utils/format";
-import { Package, MapPin, CreditCard, User, Copy, Check } from "lucide-react";
+import { Package, MapPin, CreditCard, User, Copy, Check, FileDown } from "lucide-react";
 import { getOrder } from "@/actions/admin/order.actions";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { OrderStatus } from "@/prisma/generated/prisma";
@@ -40,6 +40,7 @@ interface OrderDetails {
   razorpayOrderId: string | null;
   razorpayPaymentId: string | null;
   paymentCapturedAt: Date | null;
+  invoiceUrl: string | null;
   user: {
     id: string;
     name: string;
@@ -350,6 +351,17 @@ export function OrderDetailsDialog({ orderId, open, onOpenChange }: OrderDetails
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">Captured At</p>
                         <p className="text-sm">{formatDate(order.paymentCapturedAt)}</p>
+                      </div>
+                    )}
+                    
+                    {order.invoiceUrl && (
+                      <div className="pt-3 border-t">
+                        <Button size="sm" variant="outline" className="w-full gap-2" asChild>
+                          <a href={order.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                            <FileDown className="h-4 w-4" />
+                            Download Invoice
+                          </a>
+                        </Button>
                       </div>
                     )}
                   </div>

@@ -66,6 +66,7 @@ export const productSchema = z
     title: z.string().min(1, "Title is required"),
     slug: z.string().min(1, "Slug is required"),
     shortDescription: z.string().optional(),
+    hsnCode: z.string().optional().nullable(),
     description: z.string().min(1, "Description is required"),
     video: z.string().optional(),
     categoryId: z.string().optional().nullable(),

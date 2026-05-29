@@ -7,6 +7,7 @@ import {
 } from "@/utils/order-helpers";
 import { sendOrderConfirmationToUser, sendOrderNotificationToAdmin } from "@/lib/send-mail";
 import { getSiteConfig } from "@/actions/admin/site-config.actions";
+import { generateAndUploadInvoice } from "@/lib/invoice/invoice-service";
 
 /**
  * Razorpay Webhook Handler
@@ -255,6 +256,13 @@ async function sendEmailsInBackground(order: any) {
     const configResult = await getSiteConfig();
     const siteConfig = configResult.success ? configResult.data : null;
 
+    let invoiceUrl: string | null = null;
+    try {
+      invoiceUrl = await generateAndUploadInvoice(order, siteConfig);
+    } catch (err) {
+      console.error("[WEBHOOK] Invoice generation failed:", err);
+    }
+
     // Format order details for email
     const orderDateFormatted = new Date(order.createdAt).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -305,6 +313,7 @@ async function sendEmailsInBackground(order: any) {
         mrp: item.variantDetails?.mrp || price,
         variantName: item.variantDetails?.variantName || "",
         sku: item.variantDetails?.sku || null,
+        hsnCode: item.hsnCode || null,
         discountAmount: itemDiscountAmount,
         taxableAmount,
         cgstAmount,
@@ -382,6 +391,7 @@ async function sendEmailsInBackground(order: any) {
         country: order.billingAddress.country || "India",
         phone: order.billingAddress.phone || "",
       } : undefined,
+      invoiceUrl,
     };
 
     // Log formatted order details to identify missing fields

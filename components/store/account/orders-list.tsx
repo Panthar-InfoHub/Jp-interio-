@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Package, Eye, Loader2 } from "lucide-react";
+import { Package, Eye, Loader2, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice, formatDate } from "@/utils/format";
@@ -143,13 +143,26 @@ export function OrdersList() {
                     <p className="text-xl font-bold text-primary">{formatPrice(order.total)}</p>
                   </div>
 
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" onClick={() => setSelectedOrder(order)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
+                  <div className="flex items-center gap-2">
+                    {order.invoiceUrl && order.paymentStatus === "SUCCESS" && (
+                      <Button
+                        variant="outline"
+                        className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                        asChild
+                      >
+                        <a href={order.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                          <FileDown className="h-4 w-4 mr-2" />
+                          Invoice
+                        </a>
                       </Button>
-                    </DialogTrigger>
+                    )}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" onClick={() => setSelectedOrder(order)}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </Button>
+                      </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Order Details</DialogTitle>
@@ -168,6 +181,22 @@ export function OrdersList() {
                             >
                               {statusLabels[selectedOrder.status as OrderStatus]}
                             </Badge>
+                            
+                            {selectedOrder.invoiceUrl && selectedOrder.paymentStatus === "SUCCESS" && (
+                              <div className="mt-3">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-green-200 text-green-700 hover:bg-green-50"
+                                  asChild
+                                >
+                                  <a href={selectedOrder.invoiceUrl} target="_blank" rel="noopener noreferrer">
+                                    <FileDown className="h-4 w-4 mr-2" />
+                                    Download Invoice
+                                  </a>
+                                </Button>
+                              </div>
+                            )}
                           </div>
 
                           <div>
@@ -314,6 +343,7 @@ export function OrdersList() {
                       )}
                     </DialogContent>
                   </Dialog>
+                  </div>
                 </div>
               </div>
             ))}

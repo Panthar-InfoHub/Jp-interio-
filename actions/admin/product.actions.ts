@@ -167,6 +167,7 @@ export async function createProduct(data: ProductFormData) {
       data: {
         title: validatedData.title,
         slug: validatedData.slug,
+        hsnCode: validatedData.hsnCode || null,
         shortDescription: validatedData.shortDescription,
         description: validatedData.description,
         video: validatedData.video,
@@ -250,6 +251,7 @@ export async function updateProduct(id: string, data: ProductFormData) {
       data: {
         title: validatedData.title,
         slug: validatedData.slug,
+        hsnCode: validatedData.hsnCode || null,
         shortDescription: validatedData.shortDescription,
         description: validatedData.description,
         video: validatedData.video,

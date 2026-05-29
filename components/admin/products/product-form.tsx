@@ -71,6 +71,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
       return {
         title: product.title || "",
         slug: product.slug || "",
+        hsnCode: product.hsnCode || "",
         shortDescription: product.shortDescription || "",
         description: product.description || "",
         video: product.video || "",
@@ -110,6 +111,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
       title: "",
       slug: "",
       shortDescription: "",
+      hsnCode: "",
       description: "",
       video: "",
       categoryId: null,
@@ -323,6 +325,14 @@ export function ProductForm({ product, mode }: ProductFormProps) {
                     <Input id="slug" {...register("slug")} placeholder="product-slug" />
                     {errors.slug && (
                       <p className="text-sm text-destructive">{errors.slug.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="hsnCode">HSN Code</Label>
+                    <Input id="hsnCode" {...register("hsnCode")} placeholder="Enter HSN code" />
+                    {errors.hsnCode && (
+                      <p className="text-sm text-destructive">{errors.hsnCode.message}</p>
                     )}
                   </div>
 
