@@ -16,10 +16,16 @@ export default function ContactPage() {
       <section className="border-b">
         <div className="container mx-auto px-6 py-16 md:py-24 max-w-5xl">
           <div className="text-center space-y-5">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-semibold text-gray-900 tracking-tight">
+            <h1 
+              className="text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               Contact Us
             </h1>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+            <p 
+              className="text-base md:text-lg lg:text-xl leading-relaxed max-w-3xl mx-auto"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               We're here to help you with Furniture, Interior Design, and other related solutions. Reach out to us
               anytime.
             </p>
@@ -34,10 +40,16 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="lg:col-span-2 space-y-10">
               <div>
-                <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">
+                <h2 
+                  className="text-2xl md:text-3xl font-semibold mb-3"
+                  style={{ color: siteConfig.colors.secondary }}
+                >
                   Get in touch
                 </h2>
-                <p className="text-base text-gray-600 leading-relaxed">
+                <p 
+                  className="text-base leading-relaxed"
+                  style={{ color: siteConfig.colors.secondary }}
+                >
                   Fill out the form and our team will get back to you within 24 hours.
                 </p>
               </div>
@@ -45,16 +57,24 @@ export default function ContactPage() {
               <div className="space-y-8">
                 {/* Phone */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 
+                    className="text-sm font-medium uppercase tracking-wider mb-3"
+                    style={{ color: siteConfig.colors.primary }}
+                  >
                     Phone
                   </h3>
-                  <div className="space-y-2 text-gray-900">
-                    <a href={`tel:${siteConfig.contact.phone}`} className="text-base block">
+                  <div className="space-y-2">
+                    <a 
+                      href={`tel:${siteConfig.contact.phone}`} 
+                      className="text-base block"
+                      style={{ color: siteConfig.colors.secondary }}
+                    >
                       {siteConfig.contact.phone}
                     </a>
                     <a
                       href={`tel:${siteConfig.contact.alternatePhone}`}
                       className="text-base block"
+                      style={{ color: siteConfig.colors.secondary }}
                     >
                       {siteConfig.contact.alternatePhone}
                     </a>
@@ -63,21 +83,30 @@ export default function ContactPage() {
 
                 {/* Email */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 
+                    className="text-sm font-medium uppercase tracking-wider mb-3"
+                    style={{ color: siteConfig.colors.primary }}
+                  >
                     Email
                   </h3>
-                  <div className="space-y-2 text-gray-900">
-                    <p className="text-base">sales@jpinterio.com</p>
-                    <p className="text-base">Kjenterprise@gmail.com</p>
+                  <div className="space-y-2">
+                    <p className="text-base" style={{ color: siteConfig.colors.secondary }}>sales@jpinterio.com</p>
+                    <p className="text-base" style={{ color: siteConfig.colors.secondary }}>Kjenterprise@gmail.com</p>
                   </div>
                 </div>
 
                 {/* Address */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 
+                    className="text-sm font-medium uppercase tracking-wider mb-3"
+                    style={{ color: siteConfig.colors.primary }}
+                  >
                     Visit Us
                   </h3>
-                  <p className="text-base text-gray-900 leading-relaxed">
+                  <p 
+                    className="text-base leading-relaxed"
+                    style={{ color: siteConfig.colors.secondary }}
+                  >
                     JP Interio
                     <br />
                     Near JMK Showroom, Avas Vikas Phase 2, Jhansi, Uttar Pradesh 284003
@@ -86,12 +115,15 @@ export default function ContactPage() {
 
                 {/* Business Hours */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 
+                    className="text-sm font-medium uppercase tracking-wider mb-3"
+                    style={{ color: siteConfig.colors.primary }}
+                  >
                     Business Hours
                   </h3>
-                  <div className="space-y-1 text-base text-gray-900">
-                    <p>Monday – Saturday: 9:00 AM - 7:00 PM</p>
-                    <p className="text-gray-600">Sunday: Closed</p>
+                  <div className="space-y-1 text-base">
+                    <p style={{ color: siteConfig.colors.secondary }}>Monday – Saturday: 9:00 AM - 7:00 PM</p>
+                    <p style={{ color: siteConfig.colors.secondary }}>Sunday: Closed</p>
                   </div>
                 </div>
               </div>
@@ -100,10 +132,18 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div className="lg:col-span-3">
               <div className="mb-8">
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">
+                <h3 
+                  className="text-xl md:text-2xl font-semibold mb-2"
+                  style={{ color: siteConfig.colors.secondary }}
+                >
                   Send us a message
                 </h3>
-                <p className="text-base text-gray-600">We'll receive your message via WhatsApp.</p>
+                <p 
+                  className="text-base"
+                  style={{ color: siteConfig.colors.secondary }}
+                >
+                  We'll receive your message via WhatsApp.
+                </p>
               </div>
               <ContactForm />
             </div>
@@ -115,10 +155,18 @@ export default function ContactPage() {
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">
+            <h2 
+              className="text-2xl md:text-3xl font-semibold mb-3"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               Visit Our Location
             </h2>
-            <p className="text-base text-gray-600">Find us at Jhansi, Uttar Pradesh</p>
+            <p 
+              className="text-base"
+              style={{ color: siteConfig.colors.secondary }}
+            >
+              Find us at Jhansi, Uttar Pradesh
+            </p>
           </div>
           <div className="rounded-xl overflow-hidden shadow-lg border border-gray-200">
             <iframe

@@ -94,11 +94,22 @@ ${formData.additionalRequirements || "None"}`;
             <div className="container mx-auto px-4 py-12 max-w-4xl">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-900 rounded-full mb-4">
+                    <div 
+                      className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
+                      style={{ backgroundColor: siteConfig.colors.primary }}
+                    >
                         <Package className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">Bulk Order Request</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <h1 
+                      className="text-4xl font-bold mb-4"
+                      style={{ color: siteConfig.colors.secondary }}
+                    >
+                      Bulk Order Request
+                    </h1>
+                    <p 
+                      className="text-lg max-w-2xl mx-auto font-light"
+                      style={{ color: siteConfig.colors.secondary }}
+                    >
                         Need to order in bulk? Fill out the form below and we'll get back to you with a custom quote
                         tailored to your requirements.
                     </p>
@@ -107,8 +118,15 @@ ${formData.additionalRequirements || "None"}`;
                 {/* Form Card */}
                 <Card className="shadow-xl border-gray-200">
                     <CardHeader className="border-b bg-gray-50">
-                        <CardTitle className="text-2xl">Order Information</CardTitle>
-                        <CardDescription>
+                        <CardTitle 
+                          className="text-2xl"
+                          style={{ color: siteConfig.colors.secondary }}
+                        >
+                          Order Information
+                        </CardTitle>
+                        <CardDescription
+                          style={{ color: siteConfig.colors.primary }}
+                        >
                             Please provide detailed information about your bulk order requirements
                         </CardDescription>
                     </CardHeader>
@@ -116,13 +134,16 @@ ${formData.additionalRequirements || "None"}`;
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Contact Information */}
                             <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                                <h3 
+                                  className="text-lg font-semibold border-b pb-2"
+                                  style={{ color: siteConfig.colors.secondary }}
+                                >
                                     Contact Information
                                 </h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name" className="text-sm font-medium">
+                                        <Label htmlFor="name" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                             Full Name <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
@@ -137,7 +158,7 @@ ${formData.additionalRequirements || "None"}`;
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="phone" className="text-sm font-medium">
+                                        <Label htmlFor="phone" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                             Phone Number <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
@@ -155,7 +176,7 @@ ${formData.additionalRequirements || "None"}`;
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-sm font-medium">
+                                        <Label htmlFor="email" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                             Email Address
                                         </Label>
                                         <Input
@@ -170,7 +191,7 @@ ${formData.additionalRequirements || "None"}`;
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="organization" className="text-sm font-medium">
+                                        <Label htmlFor="organization" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                             Organization/Company
                                         </Label>
                                         <Input
@@ -187,12 +208,15 @@ ${formData.additionalRequirements || "None"}`;
 
                             {/* Order Details */}
                             <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                                <h3 
+                                  className="text-lg font-semibold border-b pb-2"
+                                  style={{ color: siteConfig.colors.secondary }}
+                                >
                                     Order Details
                                 </h3>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="productDetails" className="text-sm font-medium">
+                                    <Label htmlFor="productDetails" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                         Product Details <span className="text-red-500">*</span>
                                     </Label>
                                     <Textarea
@@ -209,7 +233,7 @@ ${formData.additionalRequirements || "None"}`;
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="quantity" className="text-sm font-medium">
+                                        <Label htmlFor="quantity" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                             Estimated Quantity <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
@@ -224,7 +248,7 @@ ${formData.additionalRequirements || "None"}`;
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="deliveryLocation" className="text-sm font-medium">
+                                        <Label htmlFor="deliveryLocation" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                             Delivery Location
                                         </Label>
                                         <Input
@@ -239,7 +263,7 @@ ${formData.additionalRequirements || "None"}`;
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="additionalRequirements" className="text-sm font-medium">
+                                    <Label htmlFor="additionalRequirements" className="text-sm font-medium" style={{ color: siteConfig.colors.primary }}>
                                         Additional Requirements
                                     </Label>
                                     <Textarea
@@ -259,7 +283,8 @@ ${formData.additionalRequirements || "None"}`;
                                 <Button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full h-12 text-base font-semibold bg-gray-900 hover:bg-black transition-all disabled:opacity-50"
+                                    className="w-full h-12 text-base font-semibold text-white transition-all disabled:opacity-50 hover:opacity-90 rounded-md"
+                                    style={{ backgroundColor: siteConfig.colors.secondary }}
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -273,7 +298,10 @@ ${formData.additionalRequirements || "None"}`;
                                         </>
                                     )}
                                 </Button>
-                                <p className="text-xs text-gray-500 text-center mt-3">
+                                <p 
+                                  className="text-xs text-center mt-3 font-light"
+                                  style={{ color: siteConfig.colors.primary }}
+                                >
                                     By submitting this form, you'll be redirected to WhatsApp to complete your request
                                 </p>
                             </div>
@@ -287,24 +315,54 @@ ${formData.additionalRequirements || "None"}`;
                         <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                             <span className="text-2xl">💬</span>
                         </div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Quick Response</h4>
-                        <p className="text-sm text-gray-600">Get instant confirmation via WhatsApp</p>
+                        <h4 
+                          className="font-semibold mb-2"
+                          style={{ color: siteConfig.colors.secondary }}
+                        >
+                          Quick Response
+                        </h4>
+                        <p 
+                          className="text-sm font-light"
+                          style={{ color: siteConfig.colors.primary }}
+                        >
+                          Get instant confirmation via WhatsApp
+                        </p>
                     </div>
 
                     <div className="text-center p-6 bg-white rounded-lg border border-gray-200">
                         <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                             <span className="text-2xl">💰</span>
                         </div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Best Pricing</h4>
-                        <p className="text-sm text-gray-600">Competitive rates for bulk orders</p>
+                        <h4 
+                          className="font-semibold mb-2"
+                          style={{ color: siteConfig.colors.secondary }}
+                        >
+                          Best Pricing
+                        </h4>
+                        <p 
+                          className="text-sm font-light"
+                          style={{ color: siteConfig.colors.primary }}
+                        >
+                          Competitive rates for bulk orders
+                        </p>
                     </div>
 
                     <div className="text-center p-6 bg-white rounded-lg border border-gray-200">
                         <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                             <span className="text-2xl">🚚</span>
                         </div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Fast Delivery</h4>
-                        <p className="text-sm text-gray-600">Timely delivery across India</p>
+                        <h4 
+                          className="font-semibold mb-2"
+                          style={{ color: siteConfig.colors.secondary }}
+                        >
+                          Fast Delivery
+                        </h4>
+                        <p 
+                          className="text-sm font-light"
+                          style={{ color: siteConfig.colors.primary }}
+                        >
+                          Timely delivery across India
+                        </p>
                     </div>
                 </div>
             </div>

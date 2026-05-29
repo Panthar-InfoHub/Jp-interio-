@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Camera, ChevronsLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { siteConfig } from "@/site.config";
 
 export function VisualizeSection() {
   const [sliderPosition, setSliderPosition] = useState(50);
@@ -25,13 +26,22 @@ export function VisualizeSection() {
           
           {/* Left Content */}
           <div className="max-w-xl">
-            <p className="text-[#8c8c8c] font-bold text-xs tracking-[0.15em] uppercase mb-4">
+            <p 
+              className="font-bold text-xs tracking-[0.15em] uppercase mb-4"
+              style={{ color: siteConfig.colors.primary }}
+            >
               AI Interior Designer
             </p>
-            <h2 className="text-4xl md:text-5xl lg:text-[52px] font-medium text-[#2d2d2d] mb-6 leading-[1.15] tracking-tight">
+            <h2 
+              className="text-4xl md:text-5xl lg:text-[52px] font-medium mb-6 leading-[1.15] tracking-tight"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               Visualize in Your Space
             </h2>
-            <p className="text-gray-600 text-lg md:text-xl mb-10 leading-relaxed font-light">
+            <p 
+              className="text-lg md:text-xl mb-10 leading-relaxed font-light"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               Experience the future of interior design. Upload a photo of your room
               and see instantly how Aura's curated pieces transform your home with
               quiet luxury and timeless elegance.
@@ -41,7 +51,8 @@ export function VisualizeSection() {
               <Button 
                 asChild 
                 size="lg" 
-                className="bg-[#c49a7c] hover:bg-[#b08769] text-white px-8 h-12 text-xs tracking-widest uppercase font-semibold rounded-none"
+                className="text-white px-8 h-12 text-xs tracking-widest uppercase font-semibold rounded-none hover:opacity-90"
+                style={{ backgroundColor: siteConfig.colors.primary }}
               >
                 <Link href="https://spzaora.com" target="_blank" rel="noopener noreferrer">
                   <Camera className="mr-2 h-4 w-4" />
@@ -54,9 +65,9 @@ export function VisualizeSection() {
                 size="lg"
                 className="border-[#d4d4d4] text-[#6b6b6b] hover:bg-white hover:text-black px-8 h-12 text-xs tracking-widest uppercase font-semibold rounded-none bg-transparent"
               >
-                <Link href="#">
+                {/* <Link href="#">
                   Learn More
-                </Link>
+                </Link> */}
               </Button>
             </div>
           </div>

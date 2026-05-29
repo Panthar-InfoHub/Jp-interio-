@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import { ProductCardSkeleton } from "@/components/store/products/product-list-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FeaturedProducts } from "@/components/store/home/featured-products";
+import { siteConfig } from "@/site.config";
 
 export const experimental_ppr = true;
 
@@ -298,9 +299,17 @@ export default async function ProductsPage({
         </nav>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Browse our complete collection of electronics, robotics, and DIY components
+            <h1 
+              className="text-2xl font-bold"
+              style={{ color: siteConfig.colors.primary }}
+            >
+              All Products
+            </h1>
+            <p 
+              className="text-sm mt-1"
+              style={{ color: siteConfig.colors.secondary }}
+            >
+              Browse our complete collection Luxary furniture
             </p>
           </div>
         </div>

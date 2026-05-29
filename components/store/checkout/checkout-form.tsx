@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { formatPrice } from "@/utils/format";
-import { Loader2, CheckCircle2, MapPin, ShoppingBag } from "lucide-react";
+import { Loader2, CheckCircle2, MapPin, ShoppingBag, User } from "lucide-react";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -540,126 +540,136 @@ export function CheckoutForm({
             )}
 
             {/* Delivery Form */}
-            <Card className="p-4 sm:p-6 space-y-2 min-w-0">
-              <h2 className="text-lg sm:text-xl font-semibold">
-                {selectedAddressId === "new" || savedAddresses.length === 0
-                  ? "Delivery Address"
-                  : "Edit Delivery Details"}
-              </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {selectedAddressId !== "new" && savedAddresses.length > 0
-                  ? "You can edit the selected address details below"
-                  : "Enter your delivery information"}
-              </p>
+            <Card className="p-6 sm:p-8 md:p-10 space-y-6 rounded-[32px] border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] bg-white min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <User className="h-5 w-5 sm:h-6 sm:w-6 text-[#284239]" />
+                <h2 className="text-xl sm:text-2xl font-bold text-[#284239]">
+                  {selectedAddressId === "new" || savedAddresses.length === 0
+                    ? "Delivery Address"
+                    : "Edit Delivery Details"}
+                </h2>
+              </div>
 
               {/* Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First name *</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">First name</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
-                    className={errors.firstName ? "border-red-500" : ""}
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30 ${errors.firstName ? "ring-1 ring-red-500" : ""}`}
                   />
-                  {errors.firstName && <p className="text-xs text-red-500">{errors.firstName}</p>}
+                  {errors.firstName && <p className="text-xs text-red-500 ml-1">{errors.firstName}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last name *</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Last name</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
-                    className={errors.lastName ? "border-red-500" : ""}
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30 ${errors.lastName ? "ring-1 ring-red-500" : ""}`}
                   />
-                  {errors.lastName && <p className="text-xs text-red-500">{errors.lastName}</p>}
+                  {errors.lastName && <p className="text-xs text-red-500 ml-1">{errors.lastName}</p>}
                 </div>
               </div>
 
-              {/* Phone and Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <PhoneInput
-                    id="phone"
-                    value={formData.phone}
-                    defaultCountry="IN"
-                    onChange={(value) => handleInputChange("phone", value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email (optional)</Label>
+              {/* Email & Phone */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email address</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                   />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone number</Label>
+                  <div className="phone-input-wrapper">
+                    <PhoneInput
+                      id="phone"
+                      value={formData.phone}
+                      defaultCountry="IN"
+                      onChange={(value) => handleInputChange("phone", value)}
+                      required
+                      className="[&_input]:bg-[#F4F4F4] [&_input]:hover:bg-[#EBEBEB] [&_input]:transition-colors [&_input]:border-0 [&_input]:rounded-r-full [&_input]:h-[48px] [&_input]:px-5 [&_input]:focus-visible:ring-1 [&_input]:focus-visible:ring-[#284239]/30 [&_button]:bg-[#F4F4F4] [&_button]:hover:bg-[#EBEBEB] [&_button]:border-0 [&_button]:rounded-l-full [&_button]:h-[48px] [&_button]:pl-5"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Country/Region */}
-              <div className="space-y-2">
-                <Label htmlFor="country">Country/Region</Label>
-                <Input
-                  id="country"
-                  value={formData.country}
-                  onChange={(e) => handleInputChange("country", e.target.value)}
-                  defaultValue={"India"}
-                  required
-                />
-              </div>
-
               {/* Address */}
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="address" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Address</Label>
                 <Input
                   id="address"
                   placeholder="House number and street name"
                   value={formData.address}
                   onChange={(e) => handleInputChange("address", e.target.value)}
                   required
+                  className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                 />
               </div>
 
               {/* Apartment */}
-              <div className="space-y-2">
-                <Label htmlFor="apartment">Apartment, suite, etc. (optional)</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="apartment" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Apartment, suite, etc.</Label>
                 <Input
                   id="apartment"
                   value={formData.apartment}
                   onChange={(e) => handleInputChange("apartment", e.target.value)}
+                  className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                 />
               </div>
 
-              {/* City, State, PIN */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
+              {/* City & State */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <Label htmlFor="city" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">City</Label>
                   <Input
                     id="city"
                     value={formData.city}
                     onChange={(e) => handleInputChange("city", e.target.value)}
                     required
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="state">State</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="state" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">State</Label>
                   <Input
                     id="state"
                     value={formData.state}
                     onChange={(e) => handleInputChange("state", e.target.value)}
                     required
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pinCode">PIN code</Label>
+              </div>
+
+              {/* Country & PIN code */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <Label htmlFor="country" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Country / Region</Label>
+                  <Input
+                    id="country"
+                    value={formData.country}
+                    onChange={(e) => handleInputChange("country", e.target.value)}
+                    defaultValue={"India"}
+                    required
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pinCode" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">PIN code</Label>
                   <Input
                     id="pinCode"
                     value={formData.pinCode}
                     onChange={(e) => handleInputChange("pinCode", e.target.value)}
                     required
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                   />
                 </div>
               </div>
@@ -693,120 +703,132 @@ export function CheckoutForm({
 
             {/* Billing Form */}
             {!useSameBillingAddress && (
-              <Card className="p-4 sm:p-6 space-y-2 min-w-0">
-                <h2 className="text-lg sm:text-xl font-semibold">Billing Address</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Enter your billing information
-                </p>
+              <Card className="p-6 sm:p-8 md:p-10 space-y-6 rounded-[32px] border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] bg-white min-w-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <User className="h-5 w-5 sm:h-6 sm:w-6 text-[#284239]" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#284239]">Billing Address</h2>
+                </div>
 
                 {/* Name */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="billingFirstName">First name *</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingFirstName" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">First name</Label>
                     <Input
                       id="billingFirstName"
                       value={billingFormData.firstName}
                       onChange={(e) => handleBillingInputChange("firstName", e.target.value)}
-                      className={billingErrors.firstName ? "border-red-500" : ""}
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30 ${billingErrors.firstName ? "ring-1 ring-red-500" : ""}`}
                     />
-                    {billingErrors.firstName && <p className="text-xs text-red-500">{billingErrors.firstName}</p>}
+                    {billingErrors.firstName && <p className="text-xs text-red-500 ml-1">{billingErrors.firstName}</p>}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="billingLastName">Last name *</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingLastName" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Last name</Label>
                     <Input
                       id="billingLastName"
                       value={billingFormData.lastName}
                       onChange={(e) => handleBillingInputChange("lastName", e.target.value)}
-                      className={billingErrors.lastName ? "border-red-500" : ""}
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30 ${billingErrors.lastName ? "ring-1 ring-red-500" : ""}`}
                     />
-                    {billingErrors.lastName && <p className="text-xs text-red-500">{billingErrors.lastName}</p>}
+                    {billingErrors.lastName && <p className="text-xs text-red-500 ml-1">{billingErrors.lastName}</p>}
                   </div>
                 </div>
 
-                {/* Phone and Email */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="billingPhone">Phone</Label>
-                    <PhoneInput
-                      id="billingPhone"
-                      value={billingFormData.phone}
-                      defaultCountry="IN"
-                      onChange={(value) => handleBillingInputChange("phone", value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="billingEmail">Email (optional)</Label>
+                {/* Email & Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingEmail" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email address</Label>
                     <Input
                       id="billingEmail"
                       type="email"
                       value={billingFormData.email}
                       onChange={(e) => handleBillingInputChange("email", e.target.value)}
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                     />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingPhone" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone number</Label>
+                    <div className="phone-input-wrapper">
+                      <PhoneInput
+                        id="billingPhone"
+                        value={billingFormData.phone}
+                        defaultCountry="IN"
+                        onChange={(value) => handleBillingInputChange("phone", value)}
+                        required
+                        className="[&_input]:bg-[#F4F4F4] [&_input]:hover:bg-[#EBEBEB] [&_input]:transition-colors [&_input]:border-0 [&_input]:rounded-r-full [&_input]:h-[48px] [&_input]:px-5 [&_input]:focus-visible:ring-1 [&_input]:focus-visible:ring-[#284239]/30 [&_button]:bg-[#F4F4F4] [&_button]:hover:bg-[#EBEBEB] [&_button]:border-0 [&_button]:rounded-l-full [&_button]:h-[48px] [&_button]:pl-5"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Country/Region */}
-                <div className="space-y-2">
-                  <Label htmlFor="billingCountry">Country/Region</Label>
-                  <Input
-                    id="billingCountry"
-                    value={billingFormData.country}
-                    onChange={(e) => handleBillingInputChange("country", e.target.value)}
-                    defaultValue={"India"}
-                    required
-                  />
-                </div>
-
                 {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="billingAddress">Address</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="billingAddress" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Address</Label>
                   <Input
                     id="billingAddress"
                     placeholder="House number and street name"
                     value={billingFormData.address}
                     onChange={(e) => handleBillingInputChange("address", e.target.value)}
                     required
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                   />
                 </div>
 
                 {/* Apartment */}
-                <div className="space-y-2">
-                  <Label htmlFor="billingApartment">Apartment, suite, etc. (optional)</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="billingApartment" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Apartment, suite, etc. (optional)</Label>
                   <Input
                     id="billingApartment"
                     value={billingFormData.apartment}
                     onChange={(e) => handleBillingInputChange("apartment", e.target.value)}
+                    className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                   />
                 </div>
 
-                {/* City, State, PIN */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="billingCity">City</Label>
+                {/* City & State */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingCity" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">City</Label>
                     <Input
                       id="billingCity"
                       value={billingFormData.city}
                       onChange={(e) => handleBillingInputChange("city", e.target.value)}
                       required
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="billingState">State</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingState" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">State</Label>
                     <Input
                       id="billingState"
                       value={billingFormData.state}
                       onChange={(e) => handleBillingInputChange("state", e.target.value)}
                       required
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="billingPinCode">PIN code</Label>
+                </div>
+
+                {/* Country & PIN code */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingCountry" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Country / Region</Label>
+                    <Input
+                      id="billingCountry"
+                      value={billingFormData.country}
+                      onChange={(e) => handleBillingInputChange("country", e.target.value)}
+                      defaultValue={"India"}
+                      required
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="billingPinCode" className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">PIN code</Label>
                     <Input
                       id="billingPinCode"
                       value={billingFormData.pinCode}
                       onChange={(e) => handleBillingInputChange("pinCode", e.target.value)}
                       required
+                      className={`bg-[#F4F4F4] hover:bg-[#EBEBEB] transition-colors border-0 rounded-full h-[48px] px-5 focus-visible:ring-1 focus-visible:ring-[#284239]/30`}
                     />
                   </div>
                 </div>
@@ -816,65 +838,72 @@ export function CheckoutForm({
 
           {/* Right Column - Order Summary */}
           <div className="lg:sticky lg:top-8 h-fit space-y-4 sm:space-y-6 min-w-0">
-            <Card className="p-4 sm:p-6 space-y-2">
+            <Card className="p-6 sm:p-8 md:p-10 space-y-6 rounded-[32px] border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] bg-[#FCFCFC]">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#284239] mb-4">Order Summary</h2>
+              
               {/* Cart Items */}
-              <div className="space-y-2 max-h-[250px] sm:max-h-[300px] lg:max-h-none overflow-y-auto">
+              <div className="space-y-4 max-h-[250px] sm:max-h-[300px] lg:max-h-none overflow-y-auto pr-2">
                 {displayItems.map((item) => (
-                  <div key={item.id} className="flex gap-3 sm:gap-4">
-                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg border overflow-hidden bg-muted shrink-0">
+                  <div key={item.id} className="flex gap-4 items-center">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-muted shrink-0 border-0">
                       <Image
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
                         fill
                         className="object-cover"
                         loading="lazy"
-                        sizes="(max-width: 640px) 48px, 64px"
+                        sizes="(max-width: 640px) 64px, 80px"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-xs sm:text-sm truncate">{item.name}</h4>
-                      <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                      <h4 className="font-bold text-sm sm:text-base text-gray-900 truncate">{item.name}</h4>
+                      <p className="text-sm text-gray-500 mt-1">Quantity: {item.quantity}</p>
                     </div>
-                    <div className="text-xs sm:text-sm font-semibold shrink-0">
-                      {formatPrice(item.price * item.quantity)}
+                    <div className="text-right shrink-0">
+                      <div className="text-sm sm:text-base font-bold text-gray-900">
+                        {formatPrice(item.price * item.quantity)}
+                      </div>
+                      {item.mrp && item.mrp > item.price && (
+                        <div className="text-sm text-gray-400 line-through">
+                          {formatPrice(item.mrp * item.quantity)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <Separator className="" />
-
               {/* Coupon */}
-              {appliedCoupon ? (
-                <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      <div>
-                        <p className="text-sm font-medium text-green-900 dark:text-green-100">
-                          {appliedCoupon.code}
-                        </p>
-                        <p className="text-xs text-green-700 dark:text-green-300">
-                          Discount: {formatPrice(appliedCoupon.discount)}
-                        </p>
+              <div className="pt-2">
+                {appliedCoupon ? (
+                  <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="text-sm font-bold text-green-900 dark:text-green-100">
+                            {appliedCoupon.code}
+                          </p>
+                          <p className="text-xs text-green-700 dark:text-green-300">
+                            Discount: {formatPrice(appliedCoupon.discount)}
+                          </p>
+                        </div>
                       </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveCoupon}
+                        className="text-green-700 hover:text-green-900 font-bold"
+                      >
+                        Remove
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveCoupon}
-                      className="text-green-700 hover:text-green-900 dark:text-green-300 dark:hover:text-green-100"
-                    >
-                      Remove
-                    </Button>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex gap-2">
+                ) : (
+                  <div className="relative flex items-center w-full">
                     <Input
-                      placeholder="Enter coupon code"
+                      placeholder="COUPONS"
                       value={formData.coupon}
                       onChange={(e) => handleInputChange("coupon", e.target.value.toUpperCase())}
                       onKeyDown={(e) => {
@@ -884,36 +913,29 @@ export function CheckoutForm({
                         }
                       }}
                       disabled={isCouponApplying}
+                      className="rounded-full bg-white border-0 h-[52px] pl-6 pr-24 text-sm font-semibold tracking-wider placeholder:text-gray-400 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] focus-visible:ring-1 focus-visible:ring-[#284239]/20"
                     />
                     <Button
                       type="button"
-                      variant="default"
-                      className="shrink-0"
+                      variant="ghost"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase hover:text-[#284239] hover:bg-transparent"
                       onClick={handleApplyCoupon}
                       disabled={isCouponApplying || !formData.coupon}
                     >
                       {isCouponApplying ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Applying...
-                        </>
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         "Apply"
                       )}
                     </Button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              <Separator className="" />
-
-              {/* Summary */}
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Subtotal • {displayItems.length} item{displayItems.length > 1 ? "s" : ""}
-                  </span>
-                  <span className="font-medium">
+              <div className="pt-4 space-y-4 text-sm">
+                <div className="flex justify-between items-center text-gray-500">
+                  <span className="font-medium">Subtotal</span>
+                  <span className="font-semibold text-gray-900">
                     {formatPrice(
                       isInitialized
                         ? getSubtotal()
@@ -923,9 +945,9 @@ export function CheckoutForm({
                 </div>
 
                 {appliedCoupon && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between items-center text-green-600">
                     <span className="font-medium">Discount ({appliedCoupon.code})</span>
-                    <span className="font-medium">-{formatPrice(appliedCoupon.discount)}</span>
+                    <span className="font-semibold">-{formatPrice(appliedCoupon.discount)}</span>
                   </div>
                 )}
 
@@ -941,17 +963,17 @@ export function CheckoutForm({
                   if (taxAmount > 0) {
                     return (
                       <>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Taxable Amount</span>
-                          <span className="font-medium">{formatPrice(taxableAmount)}</span>
+                        <div className="flex justify-between items-center text-gray-500">
+                          <span className="font-medium">Taxable Amount</span>
+                          <span className="font-semibold text-gray-900">{formatPrice(taxableAmount)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">CGST ({cgstRate}%)</span>
-                          <span className="font-medium">{formatPrice(cgstAmount)}</span>
+                        <div className="flex justify-between items-center text-gray-500">
+                          <span className="font-medium">CGST ({cgstRate}%)</span>
+                          <span className="font-semibold text-gray-900">{formatPrice(cgstAmount)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">SGST ({sgstRate}%)</span>
-                          <span className="font-medium">{formatPrice(sgstAmount)}</span>
+                        <div className="flex justify-between items-center text-gray-500">
+                          <span className="font-medium">SGST ({sgstRate}%)</span>
+                          <span className="font-semibold text-gray-900">{formatPrice(sgstAmount)}</span>
                         </div>
                       </>
                     );
@@ -959,9 +981,9 @@ export function CheckoutForm({
                   return null;
                 })()}
 
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping Fee</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center text-gray-500">
+                  <span className="font-medium">Shipping</span>
+                  <span className="font-semibold text-gray-900">
                     {(() => {
                       const sub = isInitialized
                         ? getSubtotal()
@@ -980,11 +1002,9 @@ export function CheckoutForm({
                   </span>
                 </div>
 
-                <Separator />
-
-                <div className="flex justify-between text-base font-semibold pt-2">
-                  <span>Total</span>
-                  <span>
+                <div className="pt-4 flex justify-between items-center">
+                  <span className="text-xl font-bold text-gray-900">Total</span>
+                  <span className="text-xl font-bold text-gray-900">
                     {(() => {
                       const sub = isInitialized
                         ? getSubtotal()
@@ -1009,32 +1029,36 @@ export function CheckoutForm({
               </div>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full bg-primary hover:bg-primary/90 h-12 text-base font-semibold"
-                size="lg"
-              >
-                {paymentStatus === "initiating" && (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Initiating Payment...
-                  </>
-                )}
-                {paymentStatus === "verifying" && (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying Payment...
-                  </>
-                )}
-                {paymentStatus === "success" && (
-                  <>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Success! Redirecting...
-                  </>
-                )}
-                {paymentStatus === "idle" && "Pay Now"}
-              </Button>
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="w-full bg-[#284239] hover:bg-[#284239]/90 text-white rounded-full h-[56px] text-base font-bold tracking-wide transition-all shadow-md hover:-translate-y-0.5"
+                >
+                  {paymentStatus === "initiating" && (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Initiating Payment...
+                    </>
+                  )}
+                  {paymentStatus === "verifying" && (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Verifying Payment...
+                    </>
+                  )}
+                  {paymentStatus === "success" && (
+                    <>
+                      <CheckCircle2 className="mr-2 h-5 w-5" />
+                      Success! Redirecting...
+                    </>
+                  )}
+                  {paymentStatus === "idle" && "PAY NOW"}
+                </Button>
+                <p className="text-[10px] text-gray-400 text-center uppercase tracking-wider mt-5 font-medium">
+                  Tax included. Secure checkout.
+                </p>
+              </div>
             </Card>
           </div>
         </div>

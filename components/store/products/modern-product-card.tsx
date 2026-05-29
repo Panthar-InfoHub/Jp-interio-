@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2, Heart, Star, ShoppingCart } from "lucide-react";
 import { getPrimaryVariant, getVariantDisplayDetails, BaseVariant } from "@/lib/variant-helpers";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { siteConfig } from "@/site.config";
 
 interface ModernProductCardProps {
   product: {
@@ -112,11 +113,10 @@ export function ModernProductCard({ product }: ModernProductCardProps) {
               <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
             ) : (
               <Heart
-                className={`w-4.5 h-4.5 transition-all duration-250 ${
-                  inWishlist
+                className={`w-4.5 h-4.5 transition-all duration-250 ${inWishlist
                     ? "fill-red-500 text-red-500 scale-110"
                     : "text-[#555555] group-hover/btn:text-red-500"
-                }`}
+                  }`}
               />
             )}
           </button>
@@ -164,7 +164,10 @@ export function ModernProductCard({ product }: ModernProductCardProps) {
               {product.title}
             </h3>
             <div className="flex flex-col items-end shrink-0 pt-0.5">
-              <span className="text-base font-extrabold text-[#234338] leading-none">
+              <span
+                className="text-base font-extrabold leading-none"
+                style={{ color: siteConfig.colors.secondary }}
+              >
                 {formatPrice(displayDetails.price)}
               </span>
               {discount > 0 && (
@@ -219,12 +222,12 @@ export function ModernProductCard({ product }: ModernProductCardProps) {
           <Button
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAddingToCart}
-            className={`w-full h-12 text-xs font-bold transition-all duration-200 uppercase tracking-wider !rounded-full shadow-none mt-auto flex items-center justify-center gap-1.5 ${
-              inCart
+            className={`w-full h-12 text-xs font-bold transition-all duration-200 uppercase tracking-wider !rounded-full shadow-none mt-auto flex items-center justify-center gap-1.5 ${inCart
                 ? "bg-transparent border-2 border-gray-200 text-gray-800 hover:bg-gray-50"
-                : "bg-[#234338] hover:bg-[#1a332a] text-white"
-            }`}
+                : "text-white hover:opacity-90"
+              }`}
             variant={inCart ? "outline" : "default"}
+            style={!inCart ? { backgroundColor: siteConfig.colors.secondary } : undefined}
           >
             {isAddingToCart ? (
               <Loader2 className="h-4 w-4 animate-spin" />

@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MapPin, Plus, Edit, Trash2, Loader2, Check } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useLenis } from "@/components/shared/lenis";
 import {
   getAddresses,
   addAddress,
@@ -50,6 +50,7 @@ interface Address {
 }
 
 export function AddressesList() {
+  const lenis = useLenis();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -73,14 +74,25 @@ export function AddressesList() {
     fetchAddresses();
   }, []);
 
-  const fetchAddresses = async () => {
+  useEffect(() => {
+    if (!lenis) return;
+
+    if (isAddDialogOpen) {
+      lenis.stop();
+      return () => lenis.start();
+    }
+
+    lenis.start();
+  }, [isAddDialogOpen, lenis]);
+
+  async function fetchAddresses() {
     setIsLoading(true);
     const result = await getAddresses();
     if (result.success && result.data) {
       setAddresses(result.data);
     }
     setIsLoading(false);
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -183,136 +195,163 @@ export function AddressesList() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="bg-white rounded-lg border border-border p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold">Saved Addresses</h2>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-primary hover:bg-primary-hover"
-                onClick={() => handleOpenDialog()}
+    <div className="max-w-5xl">
+      <div className="mb-10">
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
+          Saved Address
+        </h1>
+        <p className="text-gray-500 text-sm sm:text-base max-w-2xl">
+          Check your previous interior item purchases and monitor your current home decor deliveries.
+        </p>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <button
+              onClick={() => handleOpenDialog()}
+              className="flex flex-col items-center justify-center min-h-[280px] rounded-[2rem] border-2 border-dashed border-gray-200 bg-gray-50/50 hover:bg-gray-50 transition-colors gap-4 w-full"
+            >
+              <div className="h-12 w-12 rounded-full bg-[#E8F3ED] flex items-center justify-center text-[#2F4F4F]">
+                <Plus className="h-6 w-6" />
+              </div>
+              <span className="font-semibold text-[#2F4F4F]">Add New Address</span>
+            </button>
+          </DialogTrigger>
+            <DialogContent className="w-[calc(100vw-2rem)] max-w-xl max-h-[85vh] p-0 overflow-hidden sm:rounded-[1.5rem] border-none shadow-2xl gap-0">
+              <div
+                data-lenis-prevent
+                className="max-h-[85vh] overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] p-5 sm:p-7 flex flex-col"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Address
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editingAddress ? "Edit Address" : "Add New Address"}</DialogTitle>
+                <DialogHeader className="mb-4">
+                  <DialogTitle className="text-2xl font-bold text-[#1A3826]">
+                  {editingAddress ? "Edit Address" : "Add New Address"}
+                </DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid gap-6 py-2">
+                <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="firstName">First Name *</Label>
+                    <Label htmlFor="firstName" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">First Name</Label>
                     <Input
                       id="firstName"
                       value={formData.firstName}
                       onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      placeholder="John"
+                      placeholder="Julianne"
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Label htmlFor="lastName" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Last Name</Label>
                     <Input
                       id="lastName"
                       value={formData.lastName}
                       onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      placeholder="Doe"
+                      placeholder="Reed"
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                     />
                   </div>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="phone">Phone *</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="9876543210"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="john@example.com"
+                      placeholder="julianne.r@elixir.co"
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="+1 (555) 012-3456"
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="address">Address *</Label>
+                  <Label htmlFor="address" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Address</Label>
                   <Input
                     id="address"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street address"
+                    placeholder="House number and street"
+                    className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="apartment">Apartment / Suite / Unit</Label>
+                  <Label htmlFor="apartment" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Apartment, Suite, Etc.</Label>
                   <Input
                     id="apartment"
                     value={formData.apartment}
                     onChange={(e) => setFormData({ ...formData, apartment: e.target.value })}
-                    placeholder="Apartment 4B"
+                    placeholder=""
+                    className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                   />
                 </div>
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="city">City *</Label>
+                    <Label htmlFor="city" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">City</Label>
                     <Input
                       id="city"
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="Mumbai"
+                      placeholder=""
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="state">State *</Label>
+                    <Label htmlFor="state" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">State</Label>
                     <Input
                       id="state"
                       value={formData.state}
                       onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      placeholder="Maharashtra"
+                      placeholder=""
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                     />
                   </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="pinCode">PIN Code *</Label>
+                    <Label htmlFor="pinCode" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Pin Code</Label>
                     <Input
                       id="pinCode"
                       value={formData.pinCode}
                       onChange={(e) => setFormData({ ...formData, pinCode: e.target.value })}
-                      placeholder="400001"
+                      placeholder=""
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="country" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Country</Label>
+                    <Input
+                      id="country"
+                      value={formData.country}
+                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                      placeholder="India"
+                      className="bg-[#F5F5F5] border-none rounded-2xl px-5 py-6 text-sm text-gray-900 w-full placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-300"
                     />
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="country">Country *</Label>
-                  <Input
-                    id="country"
-                    value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    placeholder="India"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 mt-4">
                   <input
                     type="checkbox"
                     id="isDefault"
                     checked={formData.isDefault}
                     onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-                    className="h-4 w-4"
+                    className="h-5 w-5 rounded border-gray-300 text-[#2F4F4F] focus:ring-[#2F4F4F] cursor-pointer"
                   />
-                  <Label htmlFor="isDefault" className="cursor-pointer">
+                  <Label htmlFor="isDefault" className="cursor-pointer font-bold text-sm text-gray-900">
                     Set as default address
                   </Label>
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="mt-8 flex gap-4 sm:justify-end">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -320,17 +359,18 @@ export function AddressesList() {
                     resetForm();
                   }}
                   disabled={isSaving}
+                  className="rounded-full px-10 py-6 border-[#E5D5C5] text-[#C4A484] font-bold hover:bg-[#FAF6F3] hover:text-[#B39373] w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button
-                  className="bg-primary hover:bg-primary-hover"
+                  className="rounded-full px-10 py-6 bg-[#2F4F4F] hover:bg-[#1A3826] text-white font-bold w-full sm:w-auto"
                   onClick={handleSave}
                   disabled={isSaving}
                 >
                   {isSaving ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -338,110 +378,78 @@ export function AddressesList() {
                   )}
                 </Button>
               </DialogFooter>
+              </div>
             </DialogContent>
           </Dialog>
-        </div>
 
-        {addresses.length === 0 ? (
-          <div className="text-center py-12">
-            <MapPin className="h-16 w-16 mx-auto text-foreground-muted mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No saved addresses</h3>
-            <p className="text-foreground-muted mb-6">Add an address for faster checkout</p>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {addresses.map((address) => (
-              <div key={address.id} className="border border-border rounded-lg p-6 relative">
-                {address.isDefault && (
-                  <Badge className="absolute top-4 right-4 bg-green-500">
-                    <Check className="h-3 w-3 mr-1" />
-                    Default
-                  </Badge>
-                )}
-
-                <div className="mb-4">
-                  <p className="font-semibold text-lg mb-1">
-                    {address.firstName} {address.lastName}
-                  </p>
-                  <p className="text-sm text-foreground-muted">
-                    {address.address}
-                    {address.apartment && (
-                      <>
-                        <br />
-                        {address.apartment}
-                      </>
-                    )}
-                    <br />
-                    {address.city}, {address.state} - {address.pinCode}
-                    <br />
-                    {address.country}
-                    <br />
-                    Phone: {address.phone}
-                    {address.email && (
-                      <>
-                        <br />
-                        Email: {address.email}
-                      </>
-                    )}
-                  </p>
+        {addresses.map((address) => (
+          <div key={address.id} className="bg-white rounded-[2rem] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col min-h-[280px] relative">
+            <div className="mb-6">
+              {address.isDefault ? (
+                <div className="inline-block bg-[#2F4F4F] text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-5">
+                  Default
                 </div>
-
-                <div className="flex gap-2">
-                  {!address.isDefault && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="bg-transparent"
-                      onClick={() => handleSetDefault(address.id)}
-                    >
-                      <Check className="h-4 w-4 mr-2" />
-                      Set Default
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 bg-transparent"
-                    onClick={() => handleOpenDialog(address)}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-destructive hover:text-destructive bg-transparent"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Address</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this address? This action cannot be
-                          undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(address.id)}
-                          className="bg-destructive hover:bg-destructive/90"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+              ) : (
+                <button
+                  onClick={() => handleSetDefault(address.id)}
+                  className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-5 transition-colors"
+                >
+                  Set Default
+                </button>
+              )}
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                {address.isDefault ? "Home" : "Address"}
+              </h3>
+              
+              <div className="space-y-1 text-sm text-gray-500">
+                <p className="text-gray-700">{address.firstName} {address.lastName}</p>
+                <p>{address.address}{address.apartment ? `, ${address.apartment}` : ""}</p>
+                <p>{address.city}, {address.state} {address.pinCode}</p>
+                <p>{address.country}</p>
               </div>
-            ))}
+            </div>
+            
+            <div className="mt-auto pt-4 flex items-center justify-between border-t border-transparent">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => handleOpenDialog(address)}
+                  className="text-xs font-bold text-gray-600 hover:text-gray-900 uppercase tracking-wider"
+                >
+                  Edit
+                </button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="text-xs font-bold text-gray-600 hover:text-red-600 uppercase tracking-wider">
+                      Delete
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Address</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this address? This action cannot be
+                        undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(address.id)}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <span className="text-xs text-gray-400 font-medium">{address.phone}</span>
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
+

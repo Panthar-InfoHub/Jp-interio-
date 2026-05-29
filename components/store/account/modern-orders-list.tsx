@@ -102,16 +102,16 @@ export function ModernOrdersList() {
   return (
     <div className="space-y-4">
       {orders.length === 0 ? (
-        <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-8 sm:p-12">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-100 mb-3 sm:mb-4">
-              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
+        <div className="bg-white rounded-[32px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-0 p-8 sm:p-12 min-h-[400px] flex items-center justify-center">
+          <div className="text-center flex flex-col items-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FAF5F0] mb-4">
+              <Package className="h-8 w-8 text-[#BFA083]" />
             </div>
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">No orders yet</h3>
-            <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">
+            <h3 className="text-xl font-bold text-[#111111] mb-2">No orders yet</h3>
+            <p className="text-gray-500 mb-6">
               Start shopping to see your orders here
             </p>
-            <Button asChild size="default" className="rounded-full px-6 sm:px-8">
+            <Button asChild size="default" className="rounded-full bg-[#284239] hover:bg-[#1a2b25] text-white px-8 h-12">
               <Link href="/products">Browse Products</Link>
             </Button>
           </div>
@@ -124,9 +124,9 @@ export function ModernOrdersList() {
           return (
             <div
               key={order.id}
-              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
+              className="bg-white rounded-[32px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-0 hover:shadow-md transition-all duration-200"
             >
-              <div className="p-4 sm:p-6">
+              <div className="p-6 sm:p-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:flex-wrap items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <div className="space-y-1">
@@ -147,7 +147,7 @@ export function ModernOrdersList() {
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="text-xs sm:text-sm text-gray-500 mb-1">Order Total</p>
-                    <p className="text-xl sm:text-2xl font-bold text-primary">
+                    <p className="text-xl sm:text-2xl font-bold text-[#111111]">
                       {formatPrice(order.total)}
                     </p>
                   </div>

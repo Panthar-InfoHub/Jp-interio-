@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/prisma/db";
 import { formatPrice } from "@/utils/format";
+import { siteConfig } from "@/site.config";
 
 // Vibrant gradient backgrounds for categories without images
 const gradients = [
@@ -90,13 +91,30 @@ export async function ShopCategoryCards() {
   return (
     <section className="py-12 md:py-16 bg-white">
       <div className="container mx-auto px-6">
-        <div className="mb-12">
-          <p className="text-sm font-semibold text-cyan-600 uppercase tracking-wider mb-3">
-            Curated Collections
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Key Elements for a Mindful Living Space</h2>
-          {/* <p className="text-base md:text-lg text-gray-600">Explore our wide range of categories</p> */}
-        </div>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+          <div>
+            <p 
+              className="text-sm font-semibold uppercase tracking-wider mb-3"
+              style={{ color: siteConfig.colors.primary }}
+            >
+              Curated Collections
+            </p>
+            <h2 
+              className="text-3xl md:text-4xl font-bold"
+              style={{ color: siteConfig.colors.secondary }}
+            >
+              Key Elements for a Mindful Living Space
+            </h2>
+          </div>
+          <Link
+            href="/categories"
+            className="flex items-center gap-1.5 text-sm font-semibold hover:opacity-80 transition-opacity whitespace-nowrap md:mb-1"
+            style={{ color: siteConfig.colors.primary }}
+          >
+            <span>View All Category</span>
+            <span className="text-base">→</span>
+          </Link>
+          </div>
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-4 gap-4 md:gap-6">

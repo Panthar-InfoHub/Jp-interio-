@@ -62,8 +62,8 @@ export default async function CheckoutPage() {
       })) || [];
 
   return (
-    <div className="min-h-screen py-8 bg-gray-50">
-      <div className="container mx-auto">
+    <div className="min-h-screen py-8 lg:py-12 bg-[#F8F6F2]">
+      <div className="container max-w-6xl mx-auto px-4 md:px-6">
         <Suspense fallback={<CheckoutSkeleton />}>
           <CheckoutClient
             userEmail={session.user.email}

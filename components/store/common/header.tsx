@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,10 @@ function HeaderButtonsSkeleton() {
 
 const navigationLinks = [
   {
+    href: "/",
+    label: "Home",
+  },
+  {
     label: "All Categories",
     href: "/categories",
   },
@@ -46,13 +53,14 @@ const navigationLinks = [
 ];
 
 export function Header() {
+  const pathname = usePathname();
   return (
     <nav className="bg-background text-foreground border sticky top-0 z-50">
-      <div className="container mx-auto md:px-4">
-        <div className="flex items-center justify-between gap-2 sm:gap-4 py-1">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 py-1 relative">
           {/* Logo - Left */}
           <Link href="/" className="flex items-center gap-1 shrink-0">
-            <div className="rounded-lg relative w-36 h-12 md:w-40 h-16 lg:w-44 h-18">
+            <div className="rounded-lg relative w-12 h-12 md:w-14 md:h-14">
               <Image
                 src={siteConfig.logo.path}
                 alt={siteConfig.logo.alt}
@@ -65,16 +73,30 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center justify-center gap-6 flex-1">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium transition-colors hover:text-gray-700 whitespace-nowrap"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center justify-center gap-6">
+            {navigationLinks.map((link) => {
+              const isActive = link.href === "/" ? pathname === "/" : pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium transition-colors hover:opacity-80 whitespace-nowrap relative py-1"
+                  style={{
+                    color: isActive ? siteConfig.colors.secondary : siteConfig.colors.primary,
+                  }}
+                >
+                  {link.label}
+                  {isActive && (
+                    <span
+                      className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full"
+                      style={{
+                        backgroundColor: siteConfig.colors.secondary,
+                      }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Actions - Right */}

@@ -1,5 +1,6 @@
 import { prisma } from "@/prisma/db";
 import { ProductCarousel } from "@/components/store/home/product-carousel";
+import { siteConfig } from "@/site.config";
 
 interface FeaturedProductsProps {
   title: string;
@@ -65,14 +66,23 @@ export async function FeaturedProducts({ title, filter }: FeaturedProductsProps)
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             {!isBestseller && (
-              <p className="text-sm font-semibold text-cyan-600 uppercase tracking-wider mb-3">
+              <p 
+                className="text-sm font-semibold uppercase tracking-wider mb-3"
+                style={{ color: siteConfig.colors.primary }}
+              >
                 {filter === "new" ? "New Arrivals" : "Featured"}
               </p>
             )}
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h2 
+              className="text-3xl md:text-4xl font-bold mb-3 tracking-tight"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               {isBestseller ? "Top Picks for Home Decor" : title}
             </h2>
-            <p className="text-sm md:text-base text-gray-600 font-medium">
+            <p 
+              className="text-sm md:text-base font-medium"
+              style={{ color: siteConfig.colors.secondary }}
+            >
               {isBestseller
                 ? "This week's handpicked items from our interior collection."
                 : "Discover our most popular products"}
@@ -81,7 +91,8 @@ export async function FeaturedProducts({ title, filter }: FeaturedProductsProps)
           {isBestseller && (
             <a
               href="/products"
-              className="text-[#c48b6c] hover:text-[#b07a5c] font-semibold text-sm flex items-center gap-1.5 transition-colors shrink-0 md:mb-1"
+              className="font-semibold text-sm flex items-center gap-1.5 transition-all hover:opacity-80 shrink-0 md:mb-1"
+              style={{ color: siteConfig.colors.primary }}
             >
               View All Products
               <span className="text-base font-normal">→</span>

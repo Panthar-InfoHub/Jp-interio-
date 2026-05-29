@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
 import { Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { siteConfig } from "@/site.config";
 
 interface ProductFiltersProps {
   categories: {
@@ -99,8 +100,13 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-gray-600" />
-          <h3 className="font-semibold text-lg">Filters</h3>
+          <Filter className="h-5 w-5" style={{ color: siteConfig.colors.secondary }} />
+          <h3 
+            className="font-semibold text-lg"
+            style={{ color: siteConfig.colors.secondary }}
+          >
+            Filters
+          </h3>
           {activeFilterCount > 0 && (
             <Badge variant="secondary" className="rounded-full">
               {activeFilterCount}
@@ -108,7 +114,13 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
           )}
         </div>
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={clearAllFilters} 
+            className="text-xs"
+            style={{ color: siteConfig.colors.primary }}
+          >
             <X className="h-3 w-3 mr-1" />
             Clear All
           </Button>
@@ -156,7 +168,12 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
 
       {/* Categories */}
       <div>
-        <h4 className="font-medium mb-3 text-sm text-gray-700">Category</h4>
+        <h4 
+          className="font-medium mb-3 text-sm"
+          style={{ color: siteConfig.colors.secondary }}
+        >
+          Category
+        </h4>
         <div className="space-y-2.5">
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -166,7 +183,8 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
             />
             <Label
               htmlFor="all-categories"
-              className={`text-sm cursor-pointer ${!currentCategory ? 'font-medium text-gray-900' : 'font-normal text-gray-600'}`}
+              className={`text-sm cursor-pointer ${!currentCategory ? 'font-medium' : 'font-normal'}`}
+              style={{ color: !currentCategory ? siteConfig.colors.secondary : siteConfig.colors.primary }}
             >
               All Categories
             </Label>
@@ -184,7 +202,8 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
                 />
                 <Label
                   htmlFor={category.slug}
-                  className={`text-sm cursor-pointer ${currentCategory === category.slug ? 'font-medium text-gray-900' : 'font-normal text-gray-600'}`}
+                  className={`text-sm cursor-pointer ${currentCategory === category.slug ? 'font-medium' : 'font-normal'}`}
+                  style={{ color: currentCategory === category.slug ? siteConfig.colors.secondary : siteConfig.colors.primary }}
                 >
                   {category.name}
                 </Label>
@@ -204,7 +223,8 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
                       />
                       <Label
                         htmlFor={child.slug}
-                        className={`text-xs cursor-pointer ${currentCategory === child.slug ? 'font-medium text-gray-900' : 'font-normal text-gray-500'}`}
+                        className={`text-xs cursor-pointer ${currentCategory === child.slug ? 'font-medium' : 'font-normal'}`}
+                        style={{ color: currentCategory === child.slug ? siteConfig.colors.secondary : siteConfig.colors.primary }}
                       >
                         {child.name}
                       </Label>
@@ -219,7 +239,12 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
 
       {/* Price Range */}
       <div>
-        <h4 className="font-medium mb-3 text-sm text-gray-700">Price Range</h4>
+        <h4 
+          className="font-medium mb-3 text-sm"
+          style={{ color: siteConfig.colors.secondary }}
+        >
+          Price Range
+        </h4>
         <div className="space-y-4">
           <div className="px-1">
             <Slider
@@ -233,19 +258,20 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
           </div>
           <div className="flex items-center justify-between">
             <div className="bg-gray-50 px-3 py-2 rounded-md border border-gray-200">
-              <span className="text-xs text-gray-500">Min</span>
-              <p className="text-sm font-semibold text-gray-900">₹{priceRange[0].toLocaleString()}</p>
+              <span className="text-xs" style={{ color: siteConfig.colors.secondary }}>Min</span>
+              <p className="text-sm font-semibold" style={{ color: siteConfig.colors.primary }}>₹{priceRange[0].toLocaleString()}</p>
             </div>
             <div className="text-gray-400">—</div>
             <div className="bg-gray-50 px-3 py-2 rounded-md border border-gray-200">
-              <span className="text-xs text-gray-500">Max</span>
-              <p className="text-sm font-semibold text-gray-900">₹{priceRange[1].toLocaleString()}</p>
+              <span className="text-xs" style={{ color: siteConfig.colors.secondary }}>Max</span>
+              <p className="text-sm font-semibold" style={{ color: siteConfig.colors.primary }}>₹{priceRange[1].toLocaleString()}</p>
             </div>
           </div>
           <Button
             size="sm"
-            className="w-full"
+            className="w-full text-white hover:opacity-90"
             onClick={applyPriceFilter}
+            style={{ backgroundColor: siteConfig.colors.secondary }}
           >
             Apply Price Filter
           </Button>
@@ -254,7 +280,12 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
 
       {/* Availability */}
       <div>
-        <h4 className="font-medium mb-3 text-sm text-gray-700">Availability</h4>
+        <h4 
+          className="font-medium mb-3 text-sm"
+          style={{ color: siteConfig.colors.secondary }}
+        >
+          Availability
+        </h4>
         <div className="flex items-center space-x-2">
           <Checkbox
             id="in-stock"
@@ -265,12 +296,18 @@ export function ProductFilters({ categories, isMobile = false }: ProductFiltersP
           />
           <Label
             htmlFor="in-stock"
-            className={`text-sm cursor-pointer ${currentInStock ? 'font-medium text-gray-900' : 'font-normal text-gray-600'}`}
+            className={`text-sm cursor-pointer ${currentInStock ? 'font-medium' : 'font-normal'}`}
+            style={{ color: currentInStock ? siteConfig.colors.secondary : siteConfig.colors.primary }}
           >
             In Stock Only
           </Label>
         </div>
-        <p className="text-xs text-gray-500 mt-1.5 ml-6">Show only products available for purchase</p>
+        <p 
+          className="text-xs mt-1.5 ml-6"
+          style={{ color: siteConfig.colors.primary }}
+        >
+          Show only products available for purchase
+        </p>
       </div>
     </div>
   );

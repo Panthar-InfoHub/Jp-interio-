@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, Package, MapPin, Heart, LogOut, Menu } from "lucide-react";
+import { LayoutGrid, Package, MapPin, Heart, LogOut, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Overview", href: "/account", icon: User },
+  { name: "Overview", href: "/account", icon: LayoutGrid },
   { name: "Orders", href: "/account/orders", icon: Package },
   { name: "Addresses", href: "/account/addresses", icon: MapPin },
   { name: "Wishlist", href: "/account/wishlist", icon: Heart },
@@ -28,11 +28,8 @@ export function AccountNav() {
       toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
-      // If we get a 400 or other error, the session might already be gone
-      // We still want to redirect the user to the home page
       toast.info("Session ended");
     } finally {
-      // Manual cleanup of non-httpOnly cookies just in case
       try {
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
@@ -46,14 +43,12 @@ export function AccountNav() {
       } catch (e) {
         console.error("Cookie cleanup error:", e);
       }
-
-      // Force reload to clear all states and redirect to home
       window.location.href = "/";
     }
   };
 
   const NavContent = () => (
-    <>
+    <div className="space-y-2">
       {navigation.map((item) => {
         const Icon = item.icon;
         const isActive = pathname === item.href;
@@ -64,29 +59,29 @@ export function AccountNav() {
             href={item.href}
             onClick={() => setSheetOpen(false)}
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium",
+              "flex items-center gap-4 px-5 py-3.5 rounded-full transition-all text-[15px] font-semibold w-[90%]",
               isActive
-                ? "bg-primary text-white shadow-sm"
-                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                ? "bg-[#FAF5F0] text-[#BFA083]"
+                : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
             )}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-5 w-5" />
             <span>{item.name}</span>
           </Link>
         );
       })}
 
       <button
-        className="flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 w-full mt-1"
+        className="flex items-center gap-4 px-5 py-3.5 rounded-full transition-all text-[15px] font-semibold text-gray-500 hover:bg-red-50 hover:text-red-700 w-[90%] mt-2"
         onClick={() => {
           handleLogout();
           setSheetOpen(false);
         }}
       >
-        <LogOut className="h-4 w-4" />
+        <LogOut className="h-5 w-5" />
         <span>Logout</span>
       </button>
-    </>
+    </div>
   );
 
   return (
@@ -98,11 +93,8 @@ export function AccountNav() {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[280px] p-6 bg-background">
+        <SheetContent side="left" className="w-[280px] p-6 bg-[#F8F6F2] border-r-0">
           <div className="flex flex-col pt-6">
-            <h2 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-4">
-              Navigation
-            </h2>
             <nav className="space-y-1">
               <NavContent />
             </nav>
@@ -111,8 +103,8 @@ export function AccountNav() {
       </Sheet>
 
       {/* Desktop Sidebar Navigation */}
-      <aside className="hidden lg:block">
-        <nav className="bg-white rounded-lg border border-gray-200 p-2 sticky top-24">
+      <aside className="hidden lg:block pt-2">
+        <nav className="sticky top-24">
           <NavContent />
         </nav>
       </aside>

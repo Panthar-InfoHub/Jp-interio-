@@ -7,7 +7,7 @@ export const siteConfig = {
   domain: "https://jpinterio.com",
   // Logo
   logo: {
-    path: "/image/logo.png",
+    path: "/image/main-logo.jpeg",
     alt: "JP Interio Logo",
   },
 
@@ -35,6 +35,12 @@ export const siteConfig = {
     title: "JP Interio",
     subtitle: "Admin Panel",
   },
+
+  colors:{
+    primary: "#BFA083",
+    secondary: "#284239",
+    bgColor : "#F8F6F2"
+  }
 } as const;
 
 export type SiteConfig = typeof siteConfig;

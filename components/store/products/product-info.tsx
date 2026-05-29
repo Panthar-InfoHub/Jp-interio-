@@ -18,6 +18,7 @@ import { useCart } from "@/hooks/use-cart-db";
 import { getPrimaryVariant, getVariantDisplayDetails, BaseVariant } from "@/lib/variant-helpers";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { toast } from "sonner";
+import { siteConfig } from "@/site.config";
 
 interface ProductInfoProps {
   product: {
@@ -152,7 +153,10 @@ export function ProductInfo({ product, selectedVariantId, onVariantChange }: Pro
 
       {/* Price & Rating Section */}
       <div className="flex items-center gap-4 mb-6">
-        <span className="text-2xl md:text-3xl font-extrabold text-[#234338]">
+        <span 
+          className="text-2xl md:text-3xl font-extrabold"
+          style={{ color: siteConfig.colors.secondary }}
+        >
           {formatPrice(displayDetails.price)}
         </span>
         {discount > 0 && (
@@ -258,11 +262,12 @@ export function ProductInfo({ product, selectedVariantId, onVariantChange }: Pro
             className={`w-full h-14 rounded-full text-sm font-bold shadow-none transition-all duration-200 uppercase tracking-wider mb-6 ${
               inCart
                 ? "bg-transparent border-2 border-gray-200 text-gray-800 hover:bg-gray-50"
-                : "bg-[#234338] hover:bg-[#1a332a] text-white"
+                : "text-white hover:opacity-90"
             }`}
             onClick={handleAddToCart}
             disabled={isAddingToCart}
             variant={inCart ? "outline" : "default"}
+            style={!inCart ? { backgroundColor: siteConfig.colors.secondary } : undefined}
           >
             {isAddingToCart ? (
               <Loader2 className="h-5 w-5 animate-spin" />
